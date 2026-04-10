@@ -226,15 +226,15 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3 text-right">
+            <button className="flex items-center gap-3 text-right hover:bg-white/5 active:scale-95 p-2 rounded-full transition-all cursor-pointer">
               <div>
-                <p className="text-sm font-bold text-white">Hello, Dr. Fred</p>
+                <p className="text-sm font-bold text-white">Hello, Dr. Dhoni</p>
                 <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Neonatologist</p>
               </div>
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10">
-                <img src="https://i.pravatar.cc/150?u=fred" alt="User" className="w-full h-full object-cover" />
+                <img src="https://i.pravatar.cc/150?u=dhoni" alt="User" className="w-full h-full object-cover" />
               </div>
-            </div>
+            </button>
             <button className="relative p-3 bg-[#111418] rounded-full border border-white/5 hover:bg-slate-800 transition-colors">
               <Bell className="w-5 h-5 text-slate-400" />
               <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-[#111418]" />
@@ -267,24 +267,22 @@ export default function App() {
               transition={{ duration: 0.4 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6"
             >
-              {/* Left Column: Small Stats */}
-              <div className="lg:col-span-3 grid grid-cols-1 gap-6">
-                <StatCard 
-                  icon={Activity} 
-                  label="Respiratory Rate" 
-                  value={respiratoryRate} 
-                  unit="BPM" 
-                  color="bg-orange-500" 
-                  trend="Stable" 
-                />
-                <StatCard 
-                  icon={Thermometer} 
-                  label="Body Temp" 
-                  value={temp} 
-                  unit="°C" 
-                  color="bg-amber-400" 
-                  trend="36.8°C" 
-                />
+              {/* Left Column: Small Stats & Alerts */}
+              <div className="lg:col-span-3 flex flex-col gap-6">
+                <div className="shrink-0">
+                  <StatCard 
+                    icon={Activity} 
+                    label="Respiratory Rate" 
+                    value={respiratoryRate} 
+                    unit="BPM" 
+                    color="bg-orange-500" 
+                    trend="Stable" 
+                  />
+                </div>
+                
+                <div className="card-glass rounded-5xl p-6 flex-1 flex flex-col h-full overflow-hidden">
+                  <AlertLog alerts={alerts} />
+                </div>
               </div>
 
               {/* Center Column: Main Graph & Video */}
@@ -348,8 +346,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Bottom Feed/Alerts Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-auto">
+                {/* Bottom Feed Section */}
+                <div className="grid grid-cols-1 gap-6 mt-auto">
                   <div className="card-glass rounded-5xl p-6 min-h-[320px] relative overflow-hidden group">
                     {!isCameraReady ? (
                       <div className="flex flex-col items-center justify-center h-full text-center">
@@ -373,9 +371,6 @@ export default function App() {
                         </button>
                       </>
                     )}
-                  </div>
-                  <div className="card-glass rounded-5xl p-6 min-h-[320px]">
-                    <AlertLog alerts={alerts} />
                   </div>
                 </div>
               </div>
