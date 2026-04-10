@@ -1,16 +1,59 @@
-import React from 'react';
-import { Bookmark, FileText, Download, Share2, Search, Filter, Calendar, Clock, User, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bookmark, FileText, Download, Share2, Search, Filter, Calendar, Clock, User, ChevronRight, ChevronDown } from 'lucide-react';
+import { type PatientRecord } from '../App';
 
-const PATIENT_RECORDS = [
-  { id: 1, title: 'Admission Summary', date: '2026-03-28', type: 'Report', doctor: 'Dr. Fred', size: '1.2 MB' },
-  { id: 2, title: 'Daily Clinical Note - Apr 03', date: '2026-04-03', type: 'Note', doctor: 'Nurse Priya', size: '450 KB' },
-  { id: 3, title: 'Respiratory Trend Analysis', date: '2026-04-02', type: 'Data', doctor: 'NeoVision AI', size: '2.8 MB' },
-  { id: 4, title: 'Blood Gas Results', date: '2026-04-01', type: 'Lab', doctor: 'Lab Services', size: '850 KB' },
-  { id: 5, title: 'Neurological Assessment', date: '2026-03-30', type: 'Report', doctor: 'Dr. Chen', size: '1.5 MB' },
-  { id: 6, title: 'Feeding Protocol - Initial', date: '2026-03-29', type: 'Protocol', doctor: 'Dr. Fred', size: '320 KB' },
-];
+export const RecordsPage = ({ records, globalDate }: { records: PatientRecord[], globalDate?: string }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All Records');
+  const [expandedRecordId, setExpandedRecordId] = useState<string | number | null>(null);
 
-export const RecordsPage = () => {
+  const handleDownload = (record: PatientRecord) => {
+    const textBlob = new Blob([record.content], { type: 'text/plain' });
+    const url = URL.createObjectURL(textBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${record.title.replace(/\s+/g, '_')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async (record: PatientRecord) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: record.title,
+          text: record.content,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(record.content);
+      alert('Content copied to clipboard!');
+    }
+  };
+
+  const sortedAndFilteredRecords = [...records].sort((a, b) => {
+    if (globalDate) {
+      if (a.date === globalDate && b.date !== globalDate) return -1;
+      if (b.date === globalDate && a.date !== globalDate) return 1;
+    }
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  }).filter(record => {
+    const matchesSearch = record.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.doctor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.type.toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchesCategory = true;
+    if (selectedCategory === 'Clinical Reports') matchesCategory = record.type === 'Report';
+    else if (selectedCategory === 'Lab Results') matchesCategory = record.type === 'Lab';
+    else if (selectedCategory === 'Imaging') matchesCategory = record.type === 'Imaging';
+    else if (selectedCategory === 'Nursing Notes') matchesCategory = record.type === 'Note';
+    else if (selectedCategory === 'AI Analysis') matchesCategory = record.type === 'Data';
+
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
@@ -24,6 +67,8 @@ export const RecordsPage = () => {
             <input 
               type="text" 
               placeholder="Search records..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-xs focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
             />
           </div>
@@ -42,12 +87,12 @@ export const RecordsPage = () => {
               Categories
             </h3>
             <div className="space-y-2">
-              <CategoryItem label="All Records" count={24} active />
-              <CategoryItem label="Clinical Reports" count={8} />
-              <CategoryItem label="Lab Results" count={12} />
-              <CategoryItem label="Imaging" count={4} />
-              <CategoryItem label="Nursing Notes" count={15} />
-              <CategoryItem label="AI Analysis" count={32} />
+              <CategoryItem label="All Records" count={records.length} active={selectedCategory === 'All Records'} onClick={() => setSelectedCategory('All Records')} />
+              <CategoryItem label="Clinical Reports" count={records.filter(r => r.type === 'Report').length} active={selectedCategory === 'Clinical Reports'} onClick={() => setSelectedCategory('Clinical Reports')} />
+              <CategoryItem label="Lab Results" count={records.filter(r => r.type === 'Lab').length} active={selectedCategory === 'Lab Results'} onClick={() => setSelectedCategory('Lab Results')} />
+              <CategoryItem label="Imaging" count={records.filter(r => r.type === 'Imaging').length} active={selectedCategory === 'Imaging'} onClick={() => setSelectedCategory('Imaging')} />
+              <CategoryItem label="Nursing Notes" count={records.filter(r => r.type === 'Note').length} active={selectedCategory === 'Nursing Notes'} onClick={() => setSelectedCategory('Nursing Notes')} />
+              <CategoryItem label="AI Analysis" count={records.filter(r => r.type === 'Data').length} active={selectedCategory === 'AI Analysis'} onClick={() => setSelectedCategory('AI Analysis')} />
             </div>
           </div>
 
@@ -81,35 +126,60 @@ export const RecordsPage = () => {
               </div>
             </div>
             <div className="divide-y divide-white/5">
-              {PATIENT_RECORDS.map((record) => (
-                <div key={record.id} className="p-6 flex items-center justify-between hover:bg-white/5 transition-colors group">
-                  <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 bg-slate-800/50 rounded-2xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-                      <FileText className="w-6 h-6" />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-bold text-white">{record.title}</h4>
-                      <div className="flex items-center gap-4 text-[10px] text-slate-500">
-                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {record.date}</span>
-                        <span className="flex items-center gap-1"><User className="w-3 h-3" /> {record.doctor}</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {record.size}</span>
+              {sortedAndFilteredRecords.map((record) => (
+                <div key={record.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
+                  <div 
+                    className="p-6 flex items-center justify-between cursor-pointer"
+                    onClick={() => setExpandedRecordId(expandedRecordId === record.id ? null : record.id)}
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 bg-slate-800/50 rounded-2xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-white">{record.title}</h4>
+                        <div className="flex items-center gap-4 text-[10px] text-slate-500">
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {record.date}</span>
+                          <span className="flex items-center gap-1"><User className="w-3 h-3" /> {record.doctor}</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {record.size}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[8px] font-black px-2 py-1 bg-slate-800 text-slate-400 rounded uppercase tracking-widest">
-                      {record.type}
-                    </span>
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors">
-                        <Download className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors">
-                        <Share2 className="w-4 h-4" />
-                      </button>
+                    <div className="flex items-center gap-4">
+                      <span className="text-[8px] font-black px-2 py-1 bg-slate-800 text-slate-400 rounded uppercase tracking-widest">
+                        {record.type}
+                      </span>
+                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleDownload(record); }}
+                          className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleShare(record); }}
+                          className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {expandedRecordId === record.id ? (
+                        <ChevronDown className="w-4 h-4 text-slate-600 group-hover:text-white transition-colors" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-white transition-colors" />
+                      )}
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-white transition-colors" />
                   </div>
+                  
+                  {expandedRecordId === record.id && (
+                    <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
+                      <div className="p-6 bg-slate-800/30 rounded-3xl border border-white/5">
+                        <pre className="text-xs text-slate-300 font-sans whitespace-pre-wrap leading-relaxed">
+                          {record.content}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -125,11 +195,14 @@ export const RecordsPage = () => {
   );
 };
 
-const CategoryItem = ({ label, count, active }: any) => (
-  <button className={cn(
-    "w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-300",
-    active ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-500 hover:bg-white/5 hover:text-slate-300"
-  )}>
+const CategoryItem = ({ label, count, active, onClick }: any) => (
+  <button 
+    onClick={onClick}
+    className={cn(
+      "w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-300",
+      active ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-500 hover:bg-white/5 hover:text-slate-300"
+    )}
+  >
     <span className="text-xs font-bold">{label}</span>
     <span className="text-[10px] font-mono opacity-60">{count}</span>
   </button>

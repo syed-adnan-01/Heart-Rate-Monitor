@@ -12,7 +12,7 @@ const HEALTH_HISTORY = [
   { time: '23:59', hr: 124, rr: 42, spo2: 99 },
 ];
 
-export const HealthPage = () => {
+export const HealthPage = ({ onGenerateAnalysis }: any) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
@@ -22,7 +22,7 @@ export const HealthPage = () => {
         </div>
         <div className="flex gap-3">
           <button className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-xs font-bold transition-colors">Export PDF</button>
-          <button className="px-6 py-2 bg-cyan-500 text-black rounded-full text-xs font-bold transition-colors">Update Assessment</button>
+          <button onClick={onGenerateAnalysis} className="px-6 py-2 bg-cyan-500 text-black rounded-full text-xs font-bold transition-colors">Update Assessment</button>
         </div>
       </div>
 
