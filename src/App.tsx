@@ -21,7 +21,9 @@ import {
   Plus,
   Calendar,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BreathingGraph } from './components/BreathingGraph';
@@ -193,6 +195,101 @@ export default function App() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDoctorInfo, setShowDoctorInfo] = useState(false);
   const [showNurseInfo, setShowNurseInfo] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [isAlarmActive, setIsAlarmActive] = useState(false);
+
+  // Web Audio Context for buzzer sound
+  const audioContext = useRef<AudioContext | null>(null);
+  const activeOscillator = useRef<OscillatorNode | null>(null);
+  const activeGainNode = useRef<GainNode | null>(null);
+  const activeLFO = useRef<OscillatorNode | null>(null);
+  const isManuallySilenced = useRef(false);
+
+  const stopAlarm = () => {
+    isManuallySilenced.current = true;
+    if (activeOscillator.current) {
+      try {
+        activeOscillator.current.stop();
+        activeOscillator.current.disconnect();
+      } catch (e) {}
+      activeOscillator.current = null;
+    }
+    if (activeLFO.current) {
+      try {
+        activeLFO.current.stop();
+        activeLFO.current.disconnect();
+      } catch (e) {}
+      activeLFO.current = null;
+    }
+    if (activeGainNode.current) {
+      activeGainNode.current.disconnect();
+      activeGainNode.current = null;
+    }
+    setIsAlarmActive(false);
+  };
+
+  const playBuzzer = (isContinuous = false) => {
+    if (!isSoundEnabled) return;
+
+    try {
+      if (!audioContext.current) {
+        audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      const ctx = audioContext.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      // Use Ref directly to avoid stale closures and overlapping oscillators
+      if (isContinuous && (activeOscillator.current || isManuallySilenced.current)) return;
+
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(660, ctx.currentTime);
+
+      if (isContinuous) {
+        // Create a pulsing siren effect using an LFO
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+
+        lfo.type = 'sine';
+        lfo.frequency.setValueAtTime(2, ctx.currentTime); // 2Hz pulse
+        lfoGain.gain.setValueAtTime(220, ctx.currentTime); // +/- 220Hz range
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(oscillator.frequency);
+        
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        
+        activeOscillator.current = oscillator;
+        activeLFO.current = lfo;
+        activeGainNode.current = gainNode;
+        setIsAlarmActive(true);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        lfo.start();
+        oscillator.start();
+      } else {
+        // Short beep
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.2);
+      }
+    } catch (e) {
+      console.error("Audio playback failed", e);
+    }
+  };
 
   const markRecordAsRead = (id: string | number) => {
     setRecords(prev => prev.map(record => 
@@ -230,6 +327,9 @@ export default function App() {
           addAlert('Tachypnea', `High respiratory rate: ${next} BPM`, 'high');
         } else if (next === 0) {
           addAlert('Warning', 'Respiratory movement stopped. Monitoring...', 'medium');
+        } else if (next >= 30 && next <= 60) {
+          // Normal range - reset silence flag if everything else is also likely normal
+          isManuallySilenced.current = false;
         }
         
         return next;
@@ -254,6 +354,9 @@ export default function App() {
         } else {
           const change = Math.floor(Math.random() * 3) - 1;
           next = Math.max(94, Math.min(100, prev + change));
+          if (next >= 95) {
+            isManuallySilenced.current = false;
+          }
         }
         return next;
       });
@@ -312,6 +415,12 @@ export default function App() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     };
     setAlerts(prev => [newAlert, ...prev].slice(0, 20));
+
+    if (severity === 'high') {
+      playBuzzer(true);
+    } else if (severity === 'medium') {
+      playBuzzer(false);
+    }
   };
 
   const startCamera = async () => {
@@ -485,85 +594,109 @@ export default function App() {
               </AnimatePresence>
             </div>
 
-            <div className="relative" ref={notificationRef}>
+            <div className="flex items-center gap-4">
+              {isAlarmActive && (
+                <button 
+                  onClick={stopAlarm}
+                  className="bg-accent-yellow text-slate-900 px-6 py-2 rounded-full font-bold text-sm hover:scale-105 active:scale-95 transition-all animate-pulse"
+                >
+                  SILENCE ALARM
+                </button>
+              )}
+
               <button 
-                onClick={() => setShowNotifications(!showNotifications)}
+                onClick={() => setIsSoundEnabled(!isSoundEnabled)}
                 className={cn(
-                  "relative p-3 rounded-full border transition-all duration-300",
-                  showNotifications 
-                    ? "bg-accent-cyan/20 border-cyan-500/50 text-accent-cyan" 
+                  "p-3 rounded-full border transition-all duration-300",
+                  isSoundEnabled 
+                    ? "bg-accent-cyan/20 border-accent-cyan/50 text-accent-cyan" 
                     : "bg-theme-card border-theme-border text-text-secondary hover:bg-slate-800"
                 )}
+                title={isSoundEnabled ? "Mute Buzzer" : "Unmute Buzzer"}
               >
-                <Bell className="w-5 h-5" />
-                {alerts.length > 0 && (
-                  <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent-yellow rounded-full border-2 border-[#111418]" />
-                )}
+                {isSoundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
 
-              <AnimatePresence>
-                {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-4 w-[380px] z-50 overflow-hidden"
-                  >
-                    <div className="card-glass rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-                      <div className="p-5 border-b border-theme-border flex items-center justify-between bg-white/5">
-                        <h3 className="font-bold text-base text-text-primary flex items-center gap-2">
-                          <Bell className="w-4 h-4 text-accent-cyan" />
-                          Notifications
-                        </h3>
-                        <span className="text-[12px] font-mono text-text-secondary uppercase">Latest System Alerts</span>
-                      </div>
-                      
-                      <div className="max-h-[450px] overflow-y-auto custom-scrollbar p-2">
-                        {alerts.length === 0 ? (
-                          <div className="py-12 text-center text-text-secondary flex flex-col items-center gap-2">
-                            <ShieldAlert className="w-8 h-8 opacity-20" />
-                            <p className="text-base font-medium">No new notifications</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-1">
-                            {alerts.map((alert) => (
-                              <button 
-                                key={alert.id}
-                                className="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition-colors group flex items-start gap-4"
-                              >
-                                <div className={cn(
-                                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                                  alert.severity === 'high' ? "bg-red-500/10 text-accent-cyan" :
-                                  alert.severity === 'medium' ? "bg-orange-500/10 text-accent-yellow" :
-                                  "bg-accent-cyan/10 text-accent-cyan"
-                                )}>
-                                  <Activity className="w-5 h-5" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[12px] font-bold uppercase tracking-wider text-text-secondary">{alert.type}</span>
-                                    <span className="text-[12px] text-text-secondary">{alert.timestamp}</span>
+              <div className="relative" ref={notificationRef}>
+                <button 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className={cn(
+                    "relative p-3 rounded-full border transition-all duration-300",
+                    showNotifications 
+                      ? "bg-accent-cyan/20 border-cyan-500/50 text-accent-cyan" 
+                      : "bg-theme-card border-theme-border text-text-secondary hover:bg-slate-800"
+                  )}
+                >
+                  <Bell className="w-5 h-5" />
+                  {alerts.length > 0 && (
+                    <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent-yellow rounded-full border-2 border-[#111418]" />
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {showNotifications && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-4 w-[380px] z-50 overflow-hidden"
+                    >
+                      <div className="card-glass rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                        <div className="p-5 border-b border-theme-border flex items-center justify-between bg-white/5">
+                          <h3 className="font-bold text-base text-text-primary flex items-center gap-2">
+                            <Bell className="w-4 h-4 text-accent-cyan" />
+                            Notifications
+                          </h3>
+                          <span className="text-[12px] font-mono text-text-secondary uppercase">Latest System Alerts</span>
+                        </div>
+                        
+                        <div className="max-h-[450px] overflow-y-auto custom-scrollbar p-2">
+                          {alerts.length === 0 ? (
+                            <div className="py-12 text-center text-text-secondary flex flex-col items-center gap-2">
+                              <ShieldAlert className="w-8 h-8 opacity-20" />
+                              <p className="text-base font-medium">No new notifications</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              {alerts.map((alert) => (
+                                <button 
+                                  key={alert.id}
+                                  className="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition-colors group flex items-start gap-4"
+                                >
+                                  <div className={cn(
+                                    "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                                    alert.severity === 'high' ? "bg-red-500/10 text-accent-cyan" :
+                                    alert.severity === 'medium' ? "bg-orange-500/10 text-accent-yellow" :
+                                    "bg-accent-cyan/10 text-accent-cyan"
+                                  )}>
+                                    <Activity className="w-5 h-5" />
                                   </div>
-                                  <p className="text-sm text-text-primary leading-snug truncate">{alert.message}</p>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-center mb-1">
+                                      <span className="text-[12px] font-bold uppercase tracking-wider text-text-secondary">{alert.type}</span>
+                                      <span className="text-[12px] text-text-secondary">{alert.timestamp}</span>
+                                    </div>
+                                    <p className="text-sm text-text-primary leading-snug truncate">{alert.message}</p>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="p-4 bg-white/5 text-center border-t border-theme-border">
+                          <button 
+                            onClick={() => setAlerts([])}
+                            className="text-[12px] font-bold text-accent-cyan hover:text-cyan-300 transition-colors uppercase tracking-[0.2em]"
+                          >
+                            Clear All Activity
+                          </button>
+                        </div>
                       </div>
-                      
-                      <div className="p-4 bg-white/5 text-center border-t border-theme-border">
-                        <button 
-                          onClick={() => setAlerts([])}
-                          className="text-[12px] font-bold text-accent-cyan hover:text-cyan-300 transition-colors uppercase tracking-[0.2em]"
-                        >
-                          Clear All Activity
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </header>
