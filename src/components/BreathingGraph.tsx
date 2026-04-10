@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { 
   ResponsiveContainer, 
   AreaChart, 
@@ -17,6 +17,23 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
   const [data, setData] = useState<{ time: number; value: number; label: string }[]>([]);
   const [tick, setTick] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [feedKey, setFeedKey] = useState(Date.now());
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Force reconnect to the signal feed whenever monitoring starts
+  useEffect(() => {
+    if (isActive) {
+      setFeedKey(Date.now());
+    }
+  }, [isActive]);
+
+  // Auto-retry on image load failure (Python not ready yet)
+  const handleImgError = useCallback(() => {
+    const timer = setTimeout(() => {
+      setFeedKey(Date.now());
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!isActive || isPaused) return;
@@ -80,7 +97,14 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
             <span className="text-lg font-black text-accent-cyan ml-2">{respiratoryRate} BPM</span>
           </div>
         </div>
-        <img src="http://localhost:5001/signal_feed" className="w-full h-full object-cover rounded-xl bg-[#061a29]" alt="Waiting for Python Live Signal..." />
+        <img 
+          ref={imgRef}
+          key={feedKey}
+          src={`http://localhost:5001/signal_feed?t=${feedKey}`} 
+          className="w-full h-full object-cover rounded-xl bg-[#061a29]" 
+          alt="Waiting for Python Live Signal..." 
+          onError={handleImgError}
+        />
       </div>
       <p className="text-[12px] text-text-secondary text-center uppercase tracking-[0.2em]">
         Use the slider above to zoom and pan through respiratory history

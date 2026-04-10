@@ -299,8 +299,14 @@ export default function App() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isMonitoringRef = useRef(false);
 
-  // Initialize Socket.IO
+  // Keep ref in sync with state so socket handler always sees latest value
+  useEffect(() => {
+    isMonitoringRef.current = isMonitoring;
+  }, [isMonitoring]);
+
+  // Initialize Socket.IO — runs once, uses ref to avoid stale closure
   useEffect(() => {
     const socket = io('http://localhost:5000');
 
@@ -309,21 +315,22 @@ export default function App() {
     });
 
     socket.on('vitals_update', (data: { respiratoryRate: number; status: string; timestamp: string }) => {
-      if (!isMonitoring) return;
+      if (!isMonitoringRef.current) return;
       
       setRespiratoryRate(data.respiratoryRate);
       
       if (data.status.includes('CRITICAL')) {
-        addAlert('Apnea', `CRITICAL Status: ${data.status} | ${data.respiratoryRate} BPM`, 'high');
+        addAlert('Apnea', `CRITICAL: ${data.status} | ${data.respiratoryRate} BPM`, 'high');
       } else if (data.status === 'NORMAL' || data.status.includes('STABLE')) {
         isManuallySilenced.current = false;
       }
+      // STABILIZING status: do nothing, just update the rate
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [isMonitoring]);
+  }, []);
 
   useEffect(() => {
     if (!isMonitoring) return;
@@ -372,6 +379,7 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showNotifications, showDoctorInfo]);
 
+  // Apnea timer display only — alerts are handled by the Python sensor via Socket.IO
   useEffect(() => {
     if (!isMonitoring) {
       setApneaTimer(0);
@@ -381,13 +389,7 @@ export default function App() {
     let interval: NodeJS.Timeout;
     if (respiratoryRate === 0) {
       interval = setInterval(() => {
-        setApneaTimer(prev => {
-          const next = prev + 1;
-          if (next === 20) {
-            addAlert('Apnea', 'CRITICAL: No movement for 20s!', 'high');
-          }
-          return next;
-        });
+        setApneaTimer(prev => prev + 1);
       }, 1000);
     } else {
       setApneaTimer(0);
@@ -397,20 +399,28 @@ export default function App() {
   }, [isMonitoring, respiratoryRate]);
 
   const addAlert = (type: Alert['type'], message: string, severity: Alert['severity']) => {
-    const newAlert: Alert = {
-      id: Math.random().toString(36).substr(2, 9),
-      type,
-      message,
-      severity,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    };
-    setAlerts(prev => [newAlert, ...prev].slice(0, 20));
-
-    if (severity === 'high') {
-      playBuzzer(true);
-    } else if (severity === 'medium') {
-      playBuzzer(false);
-    }
+    setAlerts(prev => {
+      // Deduplicate: Don't spam if the exact same message is already the most recent alert
+      if (prev.length > 0 && prev[0].message === message) {
+        return prev;
+      }
+      
+      const newAlert: Alert = {
+        id: Math.random().toString(36).substr(2, 9),
+        type,
+        message,
+        severity,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      };
+      
+      if (severity === 'high') {
+        playBuzzer(true);
+      } else if (severity === 'medium') {
+        playBuzzer(false);
+      }
+      
+      return [newAlert, ...prev].slice(0, 20);
+    });
   };
 
   const startCamera = async () => {

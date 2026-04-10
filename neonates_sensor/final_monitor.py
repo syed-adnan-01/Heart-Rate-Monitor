@@ -73,7 +73,7 @@ going_up = False
 smooth_roi = None 
 roi_alpha = 0.2     # Fast tracking
 # This is your 'Narrow Gap'. Any jitter between -0.2 and 0.2 is killed to 0.
-dead_zone_gap = 0.22 
+dead_zone_gap = 100 
 
 print("--- HARD-GATE MONITOR: JITTER-KILLER + FLASK MJPEG OVER PORT 5001 ACTIVE ---")
 
@@ -87,9 +87,10 @@ status = "STABLE"
 def send_data_async(payload):
     def _send():
         try:
-            requests.post(BACKEND_URL, json=payload, timeout=2.0)
+            r = requests.post(BACKEND_URL, json=payload, timeout=2.0)
+            print(f"[OK] SENT: {payload['respiratoryRate']} BPM | {payload['status']} -> {r.status_code}", flush=True)
         except Exception as e:
-            pass
+            print(f"[FAIL] POST error: {e}", flush=True)
     threading.Thread(target=_send, daemon=True).start()
 
 last_post_time = time.time()
@@ -155,28 +156,42 @@ try:
 
                 # 2. BPM & APNEA LOGIC
                 if final_signal == 0:
-                    status = "CRITICAL: APNEA" if (time.time() - apnea_timer > 10) else "STABLE"
-                    if status == "CRITICAL: APNEA": bpm = 0
+                    # Only trigger apnea if we're past the warmup period
+                    if len(movement_history) > 60 and (time.time() - apnea_timer > 10):
+                        status = "CRITICAL: APNEA"
+                        bpm = 0
+                    elif len(movement_history) <= 60:
+                        status = "STABILIZING"
+                    else:
+                        status = "STABLE"
                 else:
+                    # Any non-zero motion resets the apnea timer
+                    apnea_timer = time.time()
                     # Rhythmic Peak Detection
                     if final_signal < 0 and going_up:
                         curr_t = time.time()
                         diff = curr_t - last_peak_time
+                        last_peak_time = curr_t  # Always update reference point
                         if 1.0 < diff < 6.0:
                             bpm = 60 / diff
                             bpm_history.append(bpm)
-                            last_peak_time, apnea_timer = curr_t, curr_t
                             status = "NORMAL"
+                            print(f"[PEAK] ** REGISTERED ** bpm={int(bpm)} diff={diff:.2f}s", flush=True)
                         going_up = False
                     elif final_signal > 0:
                         going_up = True
 
-        if time.time() - apnea_timer > 10: status = "CRITICAL: APNEA"; bpm = 0
+        # Only check standalone apnea if past warmup
+        if len(movement_history) > 60 and time.time() - apnea_timer > 10:
+            status = "CRITICAL: APNEA"; bpm = 0
 
         # LIVE SYNC: Post to backend every 1.0 seconds
         curr_time = time.time()
         if curr_time - last_post_time > 1.0:
             last_post_time = curr_time
+            # Debug: show what the signal processor sees
+            sig_val = session_data[-1] if session_data else 0
+            print(f"[HEARTBEAT] bpm={int(bpm)} status={status} signal={sig_val:.4f} history={len(movement_history)}", flush=True)
             send_data_async({"respiratoryRate": int(bpm), "status": status})
 
         # UI
@@ -200,7 +215,8 @@ try:
 
         cv2.imshow('NICU MONITOR', frame)
         cv2.imshow('SIGNAL', wave_display)
-        if cv2.waitKey(1) & 0xFF == ord('q'): break
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'): break
 
 except Exception as e:
     import traceback
