@@ -432,7 +432,9 @@ export default function App() {
                 )}
               >
                 <Bell className="w-5 h-5" />
-                <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-[#111418]" />
+                {alerts.length > 0 && (
+                  <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-[#111418]" />
+                )}
               </button>
 
               <AnimatePresence>

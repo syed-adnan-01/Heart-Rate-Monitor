@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Stethoscope, Clipboard, TestTube, Pill, FileText, ChevronRight, Search, Filter } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Stethoscope, Clipboard, TestTube, Pill, FileText, ChevronRight, Search, Filter, Activity } from 'lucide-react';
 
 const CLINICAL_TASKS = [
   { id: 1, title: 'Morning Rounds Assessment', time: '08:30 AM', status: 'Completed', doctor: 'Dr. Dhoni' },
@@ -8,13 +8,74 @@ const CLINICAL_TASKS = [
   { id: 4, title: 'Neurological Screening', time: '02:30 PM', status: 'Scheduled', doctor: 'Dr. Ananya Sharma' },
 ];
 
+const PROTOCOLS = [
+  { 
+    title: "Respiratory Support", 
+    description: "Non-invasive ventilation monitoring with NeoVision AI.",
+    status: "Active",
+    lastUpdated: "2h ago",
+    icon: Stethoscope,
+    color: "text-cyan-400"
+  },
+  { 
+    title: "Nutritional Support", 
+    description: "Enteral feeding schedule: 45ml every 3 hours.",
+    status: "Active",
+    lastUpdated: "4h ago",
+    icon: Pill,
+    color: "text-emerald-400"
+  },
+  { 
+    title: "Infection Control", 
+    description: "Standard NICU precautions. Prophylactic monitoring.",
+    status: "Monitoring",
+    lastUpdated: "12h ago",
+    icon: TestTube,
+    color: "text-amber-400"
+  },
+  { 
+    title: "Neuro-Protection", 
+    description: "Minimal handling protocol. Quiet environment maintained.",
+    status: "Active",
+    lastUpdated: "1h ago",
+    icon: Activity,
+    color: "text-indigo-400"
+  }
+];
+
 export const ClinicalPage = () => {
   const [labRequested, setLabRequested] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [taskStatusFilter, setTaskStatusFilter] = useState('All');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setShowFilterDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleRequestLab = () => {
     setLabRequested(true);
     setTimeout(() => setLabRequested(false), 3000); // Reset after 3s
   };
+
+  const filteredProtocols = PROTOCOLS.filter(p => 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredTasks = CLINICAL_TASKS.filter(t => {
+    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        t.doctor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = taskStatusFilter === 'All' || t.status === taskStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -28,13 +89,12 @@ export const ClinicalPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input 
               type="text" 
-              placeholder="Search protocols..." 
+              placeholder="Search protocols & tasks..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-xs focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
             />
           </div>
-          <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 transition-colors">
-            <Filter className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -47,48 +107,70 @@ export const ClinicalPage = () => {
               Active Treatment Protocols
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ProtocolCard 
-                title="Respiratory Support" 
-                description="Non-invasive ventilation monitoring with NeoVision AI."
-                status="Active"
-                lastUpdated="2h ago"
-                icon={Stethoscope}
-                color="text-cyan-400"
-              />
-              <ProtocolCard 
-                title="Nutritional Support" 
-                description="Enteral feeding schedule: 45ml every 3 hours."
-                status="Active"
-                lastUpdated="4h ago"
-                icon={Pill}
-                color="text-emerald-400"
-              />
-              <ProtocolCard 
-                title="Infection Control" 
-                description="Standard NICU precautions. Prophylactic monitoring."
-                status="Monitoring"
-                lastUpdated="12h ago"
-                icon={TestTube}
-                color="text-amber-400"
-              />
-              <ProtocolCard 
-                title="Neuro-Protection" 
-                description="Minimal handling protocol. Quiet environment maintained."
-                status="Active"
-                lastUpdated="1h ago"
-                icon={Activity}
-                color="text-indigo-400"
-              />
+              {filteredProtocols.map((protocol, index) => (
+                <ProtocolCard 
+                  key={index}
+                  {...protocol}
+                />
+              ))}
+              {filteredProtocols.length === 0 && (
+                <div className="col-span-full py-12 text-center text-slate-500 border border-dashed border-white/5 rounded-4xl">
+                  No protocols matching "{searchQuery}"
+                </div>
+              )}
             </div>
           </div>
 
           <div className="card-glass rounded-5xl p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg">Daily Clinical Tasks</h3>
-              <button className="text-xs font-bold text-cyan-400">View All</button>
+              <div className="flex items-center gap-3">
+                <div className="relative" ref={filterRef}>
+                  <button 
+                    onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                    className={cn(
+                      "p-2 rounded-full transition-all duration-300",
+                      taskStatusFilter !== 'All' ? "bg-cyan-500 text-black" : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                    )}
+                  >
+                    <Filter className="w-4 h-4" />
+                  </button>
+
+                  {showFilterDropdown && (
+                    <div className="absolute right-0 mt-3 w-40 bg-[#111418] border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      <div className="p-2 space-y-1">
+                        {['All', 'Completed', 'Pending', 'Scheduled'].map((status) => (
+                          <button
+                            key={status}
+                            onClick={() => {
+                              setTaskStatusFilter(status);
+                              setShowFilterDropdown(false);
+                            }}
+                            className={cn(
+                              "w-full text-left px-4 py-2.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-colors",
+                              taskStatusFilter === status ? "bg-cyan-500/10 text-cyan-400" : "text-slate-400 hover:bg-white/5 hover:text-white"
+                            )}
+                          >
+                            {status === 'All' ? 'All Tasks' : status}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <button 
+                  onClick={() => {
+                    setTaskStatusFilter('All');
+                    setSearchQuery('');
+                  }}
+                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
+                >
+                  View All
+                </button>
+              </div>
             </div>
             <div className="space-y-3">
-              {CLINICAL_TASKS.map((task) => (
+              {filteredTasks.map((task) => (
                 <div key={task.id} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-3xl border border-white/5 hover:border-white/10 transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className={cn(
@@ -114,13 +196,18 @@ export const ClinicalPage = () => {
                   </div>
                 </div>
               ))}
+              {filteredTasks.length === 0 && (
+                <div className="py-12 text-center text-slate-500 border border-dashed border-white/5 rounded-3xl">
+                  No tasks matching "{searchQuery}"
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Right Column: Diagnostic Summary */}
         <div className="space-y-6">
-          <div className="card-glass rounded-5xl p-8 bg-gradient-to-br from-cyan-500/5 to-transparent border-cyan-500/10">
+          <div className="card-glass rounded-5xl p-8 bg-linear-to-br from-cyan-500/5 to-transparent border-cyan-500/10">
             <h3 className="font-bold text-lg mb-6">Diagnostic Summary</h3>
             <div className="space-y-6">
               <DiagnosticItem label="Blood pH" value="7.38" status="Normal" />
@@ -202,10 +289,6 @@ const TeamMember = ({ name, role, status }: any) => (
       status === 'On Duty' ? "bg-emerald-400" : "bg-orange-400"
     )} />
   </div>
-);
-
-const Activity = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
 );
 
 function cn(...classes: any[]) {
