@@ -10,7 +10,9 @@ const PATIENT_RECORDS = [
   { id: 6, title: 'Feeding Protocol - Initial', date: '2026-03-29', type: 'Protocol', doctor: 'Dr. Fred', size: '320 KB' },
 ];
 
-export const RecordsPage = () => {
+export const RecordsPage = ({ selectedDate }: { selectedDate: string }) => {
+  const filteredRecords = PATIENT_RECORDS.filter(record => record.date === selectedDate);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
@@ -81,9 +83,16 @@ export const RecordsPage = () => {
               </div>
             </div>
             <div className="divide-y divide-white/5">
-              {PATIENT_RECORDS.map((record) => (
-                <div key={record.id} className="p-6 flex items-center justify-between hover:bg-white/5 transition-colors group">
-                  <div className="flex items-center gap-6">
+              {filteredRecords.length === 0 ? (
+                <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center">
+                  <Calendar className="w-8 h-8 mb-3 opacity-50" />
+                  <p className="font-bold">No records found</p>
+                  <p className="text-xs mt-1">There are no patient records for {selectedDate}.</p>
+                </div>
+              ) : (
+                filteredRecords.map((record) => (
+                  <div key={record.id} className="p-6 flex items-center justify-between hover:bg-white/5 transition-colors group">
+                    <div className="flex items-center gap-6">
                     <div className="w-12 h-12 bg-slate-800/50 rounded-2xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
                       <FileText className="w-6 h-6" />
                     </div>
@@ -111,7 +120,8 @@ export const RecordsPage = () => {
                     <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-white transition-colors" />
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
             <div className="p-6 bg-slate-800/20 text-center">
               <button className="text-xs font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest">

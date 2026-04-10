@@ -26,7 +26,7 @@ export const HealthPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <HealthMetricCard 
           icon={Heart} 
           label="Avg Heart Rate" 
@@ -44,24 +44,6 @@ export const HealthPage = () => {
           trend="-1.2%" 
           isPositive={true}
           color="text-orange-400"
-        />
-        <HealthMetricCard 
-          icon={Droplets} 
-          label="Avg SpO2" 
-          value="98.2" 
-          unit="%" 
-          trend="+0.5%" 
-          isPositive={true}
-          color="text-cyan-400"
-        />
-        <HealthMetricCard 
-          icon={Thermometer} 
-          label="Avg Temp" 
-          value="36.8" 
-          unit="°C" 
-          trend="Stable" 
-          isPositive={true}
-          color="text-amber-400"
         />
       </div>
 
@@ -81,7 +63,7 @@ export const HealthPage = () => {
             </div>
           </div>
           <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <AreaChart data={HEALTH_HISTORY}>
                 <defs>
                   <linearGradient id="colorHr" x1="0" y1="0" x2="0" y2="1">

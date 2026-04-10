@@ -18,7 +18,8 @@ import {
   User,
   LayoutGrid,
   Bookmark,
-  Plus
+  Plus,
+  Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BreathingGraph } from './components/BreathingGraph';
@@ -52,6 +53,10 @@ export default function App() {
   const [showSlides, setShowSlides] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -112,6 +117,19 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isMonitoring]);
 
+  // Close notifications on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotifications]);
+
   // Apnea Timer Logic
   useEffect(() => {
     if (!isMonitoring) {
@@ -149,29 +167,25 @@ export default function App() {
   };
 
   const startCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      addAlert('Warning', 'Camera API not supported in this browser/context (Check HTTPS).', 'high');
+      startSimulation();
+      return;
+    }
+
     try {
-      let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-      } catch (e) {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      }
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: true 
+      });
 
       streamRef.current = stream;
       setIsCameraReady(true);
       setIsSimulated(false);
       setIsMonitoring(true);
-      
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      }, 50);
-
-      addAlert('Normal', 'Clinical camera feed initialized.', 'low');
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      addAlert('Warning', 'Hardware camera not found. Entering Simulation Mode.', 'medium');
+      addAlert('Normal', 'Live camera feed connected successfully.', 'low');
+    } catch (err: any) {
+      console.error("Camera Error Details:", err);
+      addAlert('Warning', `Camera Error: ${err.name || 'Unknown'}. Entering Simulation.`, 'medium');
       startSimulation();
     }
   };
@@ -193,6 +207,13 @@ export default function App() {
     setIsMonitoring(false);
     setRespiratoryRate(42);
     addAlert('Warning', 'Monitoring session ended.', 'medium');
+  };
+
+  // Robust callback ref to handle conditional rendering
+  const videoPortalRef = (el: HTMLVideoElement | null) => {
+    if (el && streamRef.current) {
+      el.srcObject = streamRef.current;
+    }
   };
 
   const NavItem = ({ icon: Icon, label }: { icon: any, label: string }) => (
@@ -261,24 +282,115 @@ export default function App() {
                 <img src="https://i.pravatar.cc/150?u=dhoni" alt="User" className="w-full h-full object-cover" />
               </div>
             </button>
-            <button className="relative p-3 bg-[#111418] rounded-full border border-white/5 hover:bg-slate-800 transition-colors">
-              <Bell className="w-5 h-5 text-slate-400" />
-              <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-[#111418]" />
-            </button>
+            <div className="relative" ref={notificationRef}>
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={cn(
+                  "relative p-3 rounded-full border transition-all duration-300",
+                  showNotifications 
+                    ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-400" 
+                    : "bg-[#111418] border-white/5 text-slate-400 hover:bg-slate-800"
+                )}
+              >
+                <Bell className="w-5 h-5" />
+                <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-[#111418]" />
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-4 w-[380px] z-50 overflow-hidden"
+                  >
+                    <div className="card-glass rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                      <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/5">
+                        <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                          <Bell className="w-4 h-4 text-cyan-400" />
+                          Notifications
+                        </h3>
+                        <span className="text-[10px] font-mono text-slate-500 uppercase">Latest System Alerts</span>
+                      </div>
+                      
+                      <div className="max-h-[450px] overflow-y-auto custom-scrollbar p-2">
+                        {alerts.length === 0 ? (
+                          <div className="py-12 text-center text-slate-500 flex flex-col items-center gap-2">
+                            <ShieldAlert className="w-8 h-8 opacity-20" />
+                            <p className="text-sm font-medium">No new notifications</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            {alerts.map((alert) => (
+                              <button 
+                                key={alert.id}
+                                className="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition-colors group flex items-start gap-4"
+                              >
+                                <div className={cn(
+                                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                                  alert.severity === 'high' ? "bg-red-500/10 text-red-500" :
+                                  alert.severity === 'medium' ? "bg-orange-500/10 text-orange-500" :
+                                  "bg-cyan-500/10 text-cyan-500"
+                                )}>
+                                  <Activity className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{alert.type}</span>
+                                    <span className="text-[10px] text-slate-500">{alert.timestamp}</span>
+                                  </div>
+                                  <p className="text-xs text-slate-300 leading-snug truncate">{alert.message}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 text-center border-t border-white/5">
+                        <button 
+                          onClick={() => setAlerts([])}
+                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition-colors uppercase tracking-[0.2em]"
+                        >
+                          Clear All Activity
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </header>
 
         {/* Dashboard Title & Quick Stats */}
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
           <h2 className="text-4xl font-bold tracking-tight text-white">{activeTab === 'Home' ? 'Dashboard' : activeTab}</h2>
-          <div className="flex gap-4">
-            <div className="bg-[#d9f99d] text-black px-6 py-2.5 rounded-full flex items-center gap-3 font-bold text-sm">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <div className="bg-[#d9f99d] text-black px-5 sm:px-6 py-2.5 rounded-full flex items-center gap-2 sm:gap-3 font-bold text-sm whitespace-nowrap">
               <Activity className="w-4 h-4" />
               System: {isMonitoring ? "Active" : "Standby"}
             </div>
-            <div className="bg-[#111418] text-white px-6 py-2.5 rounded-full flex items-center gap-3 font-bold text-sm border border-white/5">
-              <Plus className="w-4 h-4" />
-              04 April
+            <div 
+              onClick={() => dateInputRef.current?.showPicker()}
+              className="relative bg-[#111418] text-white rounded-full flex items-center gap-3 px-5 sm:px-6 py-2.5 font-bold text-sm border border-white/5 hover:border-cyan-500/30 hover:bg-white/5 transition-all cursor-pointer group"
+            >
+              <Calendar className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-500 uppercase tracking-widest hidden lg:block">Change Date:</span>
+                <span className="text-white">
+                  {new Date(selectedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long' })}
+                </span>
+              </div>
+              <input 
+                ref={dateInputRef}
+                type="date"
+                value={selectedDate}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                title="Click to change date"
+              />
             </div>
           </div>
         </div>
@@ -374,7 +486,7 @@ export default function App() {
 
                 {/* Bottom Feed Section */}
                 <div className="grid grid-cols-1 gap-6 mt-auto">
-                  <div className="card-glass rounded-5xl p-6 min-h-[320px] relative overflow-hidden group">
+                  <div className="card-glass rounded-5xl p-6 min-h-[500px] relative overflow-hidden group">
                     <div className="absolute top-6 right-6 z-10 flex gap-3">
                       {!isCameraReady ? (
                         <button onClick={startCamera} className="bg-cyan-500 hover:bg-cyan-400 text-black px-4 py-2 rounded-full font-bold text-xs transition-colors flex items-center gap-2 shadow-lg">
@@ -397,9 +509,9 @@ export default function App() {
                         {isSimulated ? (
                           <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65ee9?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover rounded-4xl" referrerPolicy="no-referrer" />
                         ) : (
-                          <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover rounded-4xl" />
+                          <video ref={videoPortalRef} autoPlay playsInline muted className="w-full h-full object-cover rounded-4xl" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#111418]/80 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-linear-to-t from-[#111418]/80 to-transparent pointer-events-none" />
                         <div className="absolute bottom-6 left-6 pointer-events-none">
                           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Live Monitor</p>
                           <h4 className="text-lg font-bold text-white">Newborn Unit 04</h4>
@@ -492,7 +604,7 @@ export default function App() {
           ) : activeTab === 'Widgets' ? (
             <WidgetsPage />
           ) : (
-            <RecordsPage />
+            <RecordsPage selectedDate={selectedDate} />
           )}
         </AnimatePresence>
       </div>

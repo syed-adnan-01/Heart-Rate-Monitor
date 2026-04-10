@@ -106,7 +106,7 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
             <span className="text-[10px] font-bold text-slate-400 uppercase">ECG (Sim)</span>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
             <XAxis dataKey="label" hide />
