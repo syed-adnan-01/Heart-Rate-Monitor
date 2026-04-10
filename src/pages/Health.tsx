@@ -21,17 +21,17 @@ export const HealthPage = () => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Patient Health Summary</h2>
-          <p className="text-slate-500 text-sm">Comprehensive vitals analysis and physiological trends for Unit 04.</p>
+          <h2 className="text-4xl font-bold text-white tracking-tight mb-2">Patient Health Summary</h2>
+          <p className="text-slate-500 text-base">Comprehensive vitals analysis and physiological trends for Unit 04.</p>
         </div>
         <div className="flex gap-3 no-print">
           <button 
             onClick={handleExportPDF} 
-            className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-xs font-bold transition-colors"
+            className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-sm font-bold transition-colors"
           >
             Export PDF
           </button>
-          <button className="px-6 py-2 bg-cyan-500 text-black rounded-full text-xs font-bold transition-colors">Update Assessment</button>
+          <button className="px-6 py-2 bg-cyan-500 text-black rounded-full text-sm font-bold transition-colors">Update Assessment</button>
         </div>
       </div>
 
@@ -59,15 +59,15 @@ export const HealthPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 card-glass rounded-5xl p-8">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="font-bold text-lg">24-Hour Physiological Trends</h3>
+            <h3 className="font-bold text-xl">24-Hour Physiological Trends</h3>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-cyan-400" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Heart Rate</span>
+                <span className="text-[12px] font-bold text-slate-500 uppercase">Heart Rate</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-400" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Resp Rate</span>
+                <span className="text-[12px] font-bold text-slate-500 uppercase">Resp Rate</span>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const HealthPage = () => {
         </div>
 
         <div className="card-glass rounded-5xl p-8">
-          <h3 className="font-bold text-lg mb-6">Developmental Milestones</h3>
+          <h3 className="font-bold text-xl mb-6">Developmental Milestones</h3>
           <div className="space-y-6">
             <MilestoneItem 
               label="Weight Gain" 
@@ -133,9 +133,9 @@ export const HealthPage = () => {
           <div className="mt-8 p-4 bg-slate-800/30 rounded-3xl border border-white/5">
             <div className="flex items-center gap-3 mb-2">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
-              <p className="text-xs font-bold text-white">Clinical Outlook</p>
+              <p className="text-sm font-bold text-white">Clinical Outlook</p>
             </div>
-            <p className="text-[10px] text-slate-500 leading-relaxed">
+            <p className="text-[12px] text-slate-500 leading-relaxed">
               Patient is showing consistent improvement in respiratory stability. Predicted discharge window: 4-6 days.
             </p>
           </div>
@@ -152,7 +152,7 @@ const HealthMetricCard = ({ icon: Icon, label, value, unit, trend, isPositive, c
         <Icon className={cn("w-5 h-5", color)} />
       </div>
       <div className={cn(
-        "flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold",
+        "flex items-center gap-1 px-2 py-1 rounded-full text-[12px] font-bold",
         trend === "Stable" ? "bg-slate-800 text-slate-400" : 
         isPositive ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
       )}>
@@ -160,10 +160,10 @@ const HealthMetricCard = ({ icon: Icon, label, value, unit, trend, isPositive, c
         {trend}
       </div>
     </div>
-    <p className="text-xs font-semibold text-slate-500 mb-1">{label}</p>
+    <p className="text-sm font-semibold text-slate-500 mb-1">{label}</p>
     <div className="flex items-baseline gap-1">
-      <h4 className="text-3xl font-bold text-white tracking-tight">{value}</h4>
-      <span className="text-xs font-medium text-slate-500">{unit}</span>
+      <h4 className="text-4xl font-bold text-white tracking-tight">{value}</h4>
+      <span className="text-sm font-medium text-slate-500">{unit}</span>
     </div>
   </div>
 );
@@ -171,8 +171,8 @@ const HealthMetricCard = ({ icon: Icon, label, value, unit, trend, isPositive, c
 const MilestoneItem = ({ label, value, target, progress, color }: any) => (
   <div className="space-y-2">
     <div className="flex justify-between items-end">
-      <p className="text-xs font-bold text-white">{label}</p>
-      <p className="text-[10px] text-slate-500 font-mono">{value} / {target}</p>
+      <p className="text-sm font-bold text-white">{label}</p>
+      <p className="text-[12px] text-slate-500 font-mono">{value} / {target}</p>
     </div>
     <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
       <div 

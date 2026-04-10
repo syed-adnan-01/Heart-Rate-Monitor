@@ -75,7 +75,7 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => setIsPaused(!isPaused)}
-            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-cyan-400 transition-colors flex items-center gap-2 text-xs font-bold"
+            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-cyan-400 transition-colors flex items-center gap-2 text-sm font-bold"
           >
             {isPaused ? <Play className="w-3 h-3 fill-current" /> : <Pause className="w-3 h-3 fill-current" />}
             {isPaused ? "RESUME FEED" : "PAUSE TO INSPECT"}
@@ -89,7 +89,7 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
           </button>
         </div>
         {isPaused && (
-          <span className="text-[10px] font-bold text-amber-500 animate-pulse uppercase tracking-widest">
+          <span className="text-[12px] font-bold text-amber-500 animate-pulse uppercase tracking-widest">
             Inspection Mode Active
           </span>
         )}
@@ -99,11 +99,11 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
         <div className="absolute top-4 right-4 flex gap-4 z-10">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-cyan-400" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase">Respiration</span>
+            <span className="text-[12px] font-bold text-slate-400 uppercase">Respiration</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-emerald-400" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase">ECG (Sim)</span>
+            <span className="text-[12px] font-bold text-slate-400 uppercase">ECG (Sim)</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
@@ -152,7 +152,7 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-[10px] text-slate-500 text-center uppercase tracking-[0.2em]">
+      <p className="text-[12px] text-slate-500 text-center uppercase tracking-[0.2em]">
         Use the slider above to zoom and pan through respiratory history
       </p>
     </div>

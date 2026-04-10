@@ -72,8 +72,8 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Patient Records</h2>
-          <p className="text-slate-500 text-sm">Access and manage historical clinical data, reports, and assessment notes.</p>
+          <h2 className="text-4xl font-bold text-white tracking-tight mb-2">Patient Records</h2>
+          <p className="text-slate-500 text-base">Access and manage historical clinical data, reports, and assessment notes.</p>
         </div>
         <div className="flex gap-3">
           <div className="relative">
@@ -83,7 +83,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
               placeholder="Search records..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-xs focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
+              className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-sm focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
             />
           </div>
           <div className="relative" ref={dropdownRef}>
@@ -108,7 +108,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
                         setShowFilterDropdown(false);
                       }}
                       className={cn(
-                        "w-full text-left px-4 py-2.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-colors",
+                        "w-full text-left px-4 py-2.5 rounded-2xl text-[12px] font-bold uppercase tracking-widest transition-colors",
                         statusFilter === status ? "bg-cyan-500/10 text-cyan-400" : "text-slate-400 hover:bg-white/5 hover:text-white"
                       )}
                     >
@@ -126,7 +126,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
         {/* Left Column: Categories */}
         <div className="space-y-6">
           <div className="card-glass rounded-5xl p-8">
-            <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
+            <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
               <Bookmark className="w-5 h-5 text-cyan-400" />
               Categories
             </h3>
@@ -141,16 +141,16 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
           </div>
 
           <div className="card-glass rounded-5xl p-8">
-            <h3 className="font-bold text-lg mb-4">Storage Usage</h3>
+            <h3 className="font-bold text-xl mb-4">Storage Usage</h3>
             <div className="space-y-4">
               <div className="flex justify-between items-end mb-2">
-                <p className="text-xs font-bold text-white">Cloud Storage</p>
-                <p className="text-[10px] text-slate-500 font-mono">1.2 GB / 5 GB</p>
+                <p className="text-sm font-bold text-white">Cloud Storage</p>
+                <p className="text-[12px] text-slate-500 font-mono">1.2 GB / 5 GB</p>
               </div>
               <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                 <div className="h-full bg-cyan-400 w-[24%]" />
               </div>
-              <p className="text-[10px] text-slate-500 leading-relaxed">
+              <p className="text-[12px] text-slate-500 leading-relaxed">
                 Your clinical data is securely encrypted and backed up daily.
               </p>
             </div>
@@ -161,9 +161,9 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
         <div className="lg:col-span-3 space-y-6">
           <div className="card-glass rounded-5xl overflow-hidden">
             <div className="p-8 border-b border-white/5 flex justify-between items-center">
-              <h3 className="font-bold text-lg">Recent Documents</h3>
+              <h3 className="font-bold text-xl">Recent Documents</h3>
               <div className="flex gap-4">
-                <button className="flex items-center gap-2 text-xs font-bold text-cyan-400">
+                <button className="flex items-center gap-2 text-sm font-bold text-cyan-400">
                   <Download className="w-4 h-4" />
                   Download All
                 </button>
@@ -174,7 +174,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
                 <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center">
                   <Calendar className="w-8 h-8 mb-3 opacity-50" />
                   <p className="font-bold">No records found</p>
-                  <p className="text-xs mt-1">There are no patient records for {selectedDate}.</p>
+                  <p className="text-sm mt-1">There are no patient records for {selectedDate}.</p>
                 </div>
               ) : (
                 filteredRecords.map((record) => (
@@ -194,10 +194,10 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
                           <FileText className="w-6 h-6" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-white flex items-center gap-3">
+                          <h4 className="text-base font-bold text-white flex items-center gap-3">
                             {record.title}
                             <span className={cn(
-                              "text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest font-black",
+                              "text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest font-black",
                               record.status === 'New' ? "bg-orange-500 text-black" :
                               record.status === 'Unread' ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" :
                               "bg-slate-800 text-slate-500"
@@ -205,7 +205,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
                               {record.status}
                             </span>
                           </h4>
-                          <div className="flex items-center gap-4 text-[10px] text-slate-500">
+                          <div className="flex items-center gap-4 text-[12px] text-slate-500">
                             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {record.date}</span>
                             <span className="flex items-center gap-1"><User className="w-3 h-3" /> {record.doctor}</span>
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {record.size}</span>
@@ -213,7 +213,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-[8px] font-black px-2 py-1 bg-slate-800 text-slate-400 rounded uppercase tracking-widest">
+                        <span className="text-[10px] font-black px-2 py-1 bg-slate-800 text-slate-400 rounded uppercase tracking-widest">
                           {record.type}
                         </span>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -241,7 +241,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
                     {expandedRecordId === record.id && (
                       <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
                         <div className="p-6 bg-slate-800/30 rounded-3xl border border-white/5">
-                          <pre className="text-xs text-slate-300 font-sans whitespace-pre-wrap leading-relaxed">
+                          <pre className="text-sm text-slate-300 font-sans whitespace-pre-wrap leading-relaxed">
                             {record.content}
                           </pre>
                         </div>
@@ -252,7 +252,7 @@ export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedD
               )}
             </div>
             <div className="p-6 bg-slate-800/20 text-center">
-              <button className="text-xs font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest">
+              <button className="text-sm font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest">
                 Load More Records
               </button>
             </div>
@@ -271,8 +271,8 @@ const CategoryItem = ({ label, count, active, onClick }: any) => (
       active ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-500 hover:bg-white/5 hover:text-slate-300"
     )}
   >
-    <span className="text-xs font-bold">{label}</span>
-    <span className="text-[10px] font-mono opacity-60">{count}</span>
+    <span className="text-sm font-bold">{label}</span>
+    <span className="text-[12px] font-mono opacity-60">{count}</span>
   </button>
 );
 

@@ -73,7 +73,7 @@ body {
 }
 
 .recharts-brush-texts {
-  @apply font-mono text-[10px] fill-slate-500;
+  @apply font-mono text-[12px] fill-slate-500;
 }
 
 .recharts-brush rect {

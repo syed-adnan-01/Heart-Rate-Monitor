@@ -81,8 +81,8 @@ export const ClinicalPage = () => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Clinical Management</h2>
-          <p className="text-slate-500 text-sm">Diagnostic tools, treatment protocols, and daily clinical workflows.</p>
+          <h2 className="text-4xl font-bold text-white tracking-tight mb-2">Clinical Management</h2>
+          <p className="text-slate-500 text-base">Diagnostic tools, treatment protocols, and daily clinical workflows.</p>
         </div>
         <div className="flex gap-3">
           <div className="relative">
@@ -92,7 +92,7 @@ export const ClinicalPage = () => {
               placeholder="Search protocols & tasks..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-xs focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
+              className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-sm focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
             />
           </div>
         </div>
@@ -102,7 +102,7 @@ export const ClinicalPage = () => {
         {/* Left Column: Active Protocols */}
         <div className="lg:col-span-2 space-y-6">
           <div className="card-glass rounded-5xl p-8">
-            <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
+            <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
               <Clipboard className="w-5 h-5 text-cyan-400" />
               Active Treatment Protocols
             </h3>
@@ -123,7 +123,7 @@ export const ClinicalPage = () => {
 
           <div className="card-glass rounded-5xl p-8">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-lg">Daily Clinical Tasks</h3>
+              <h3 className="font-bold text-xl">Daily Clinical Tasks</h3>
               <div className="flex items-center gap-3">
                 <div className="relative" ref={filterRef}>
                   <button 
@@ -147,7 +147,7 @@ export const ClinicalPage = () => {
                               setShowFilterDropdown(false);
                             }}
                             className={cn(
-                              "w-full text-left px-4 py-2.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-colors",
+                              "w-full text-left px-4 py-2.5 rounded-2xl text-[12px] font-bold uppercase tracking-widest transition-colors",
                               taskStatusFilter === status ? "bg-cyan-500/10 text-cyan-400" : "text-slate-400 hover:bg-white/5 hover:text-white"
                             )}
                           >
@@ -163,7 +163,7 @@ export const ClinicalPage = () => {
                     setTaskStatusFilter('All');
                     setSearchQuery('');
                   }}
-                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
+                  className="text-sm font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
                 >
                   View All
                 </button>
@@ -180,13 +180,13 @@ export const ClinicalPage = () => {
                       <FileText className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white">{task.title}</p>
-                      <p className="text-[10px] text-slate-500">{task.time} • Assigned to {task.doctor}</p>
+                      <p className="text-base font-bold text-white">{task.title}</p>
+                      <p className="text-[12px] text-slate-500">{task.time} • Assigned to {task.doctor}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className={cn(
-                      "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest",
+                      "text-[12px] font-bold px-3 py-1 rounded-full uppercase tracking-widest",
                       task.status === 'Completed' ? "bg-emerald-500/10 text-emerald-400" : 
                       task.status === 'Pending' ? "bg-orange-500/10 text-orange-400" : "bg-slate-800 text-slate-500"
                     )}>
@@ -208,7 +208,7 @@ export const ClinicalPage = () => {
         {/* Right Column: Diagnostic Summary */}
         <div className="space-y-6">
           <div className="card-glass rounded-5xl p-8 bg-linear-to-br from-cyan-500/5 to-transparent border-cyan-500/10">
-            <h3 className="font-bold text-lg mb-6">Diagnostic Summary</h3>
+            <h3 className="font-bold text-xl mb-6">Diagnostic Summary</h3>
             <div className="space-y-6">
               <DiagnosticItem label="Blood pH" value="7.38" status="Normal" />
               <DiagnosticItem label="pCO2" value="42 mmHg" status="Normal" />
@@ -219,7 +219,7 @@ export const ClinicalPage = () => {
             <button 
               onClick={handleRequestLab}
               className={cn(
-                "w-full mt-8 py-3 rounded-2xl text-xs font-bold transition-all duration-300",
+                "w-full mt-8 py-3 rounded-2xl text-sm font-bold transition-all duration-300",
                 labRequested 
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" 
                   : "bg-cyan-500 text-black hover:bg-cyan-400"
@@ -230,7 +230,7 @@ export const ClinicalPage = () => {
           </div>
 
           <div className="card-glass rounded-5xl p-8">
-            <h3 className="font-bold text-lg mb-4">Clinical Team</h3>
+            <h3 className="font-bold text-xl mb-4">Clinical Team</h3>
             <div className="space-y-4">
               <TeamMember name="Dr. Dhoni" role="Lead Neonatologist" status="On Duty" />
               <TeamMember name="Dr. Ananya Sharma" role="Neurologist" status="On Call" />
@@ -249,13 +249,13 @@ const ProtocolCard = ({ title, description, status, lastUpdated, icon: Icon, col
       <div className={cn("p-3 bg-slate-800 rounded-2xl group-hover:scale-110 transition-transform", color)}>
         <Icon className="w-5 h-5" />
       </div>
-      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{lastUpdated}</span>
+      <span className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">{lastUpdated}</span>
     </div>
-    <h4 className="text-sm font-bold text-white mb-2">{title}</h4>
-    <p className="text-[10px] text-slate-500 leading-relaxed mb-4">{description}</p>
+    <h4 className="text-base font-bold text-white mb-2">{title}</h4>
+    <p className="text-[12px] text-slate-500 leading-relaxed mb-4">{description}</p>
     <div className="flex items-center gap-2">
       <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">{status}</span>
+      <span className="text-[12px] font-bold text-emerald-400 uppercase tracking-widest">{status}</span>
     </div>
   </div>
 );
@@ -263,11 +263,11 @@ const ProtocolCard = ({ title, description, status, lastUpdated, icon: Icon, col
 const DiagnosticItem = ({ label, value, status }: any) => (
   <div className="flex justify-between items-center">
     <div>
-      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-sm font-bold text-white">{value}</p>
+      <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1">{label}</p>
+      <p className="text-base font-bold text-white">{value}</p>
     </div>
     <span className={cn(
-      "text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest",
+      "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest",
       status === 'Normal' ? "bg-emerald-500/10 text-emerald-400" : "bg-orange-500/10 text-orange-400"
     )}>
       {status}
@@ -277,12 +277,12 @@ const DiagnosticItem = ({ label, value, status }: any) => (
 
 const TeamMember = ({ name, role, status }: any) => (
   <div className="flex items-center gap-3">
-    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400">
+    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-400">
       {name.split(' ').map((n: string) => n[0]).join('')}
     </div>
     <div>
-      <p className="text-xs font-bold text-white">{name}</p>
-      <p className="text-[10px] text-slate-500">{role}</p>
+      <p className="text-sm font-bold text-white">{name}</p>
+      <p className="text-[12px] text-slate-500">{role}</p>
     </div>
     <div className={cn(
       "ml-auto w-2 h-2 rounded-full",

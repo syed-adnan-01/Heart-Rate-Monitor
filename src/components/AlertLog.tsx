@@ -18,7 +18,7 @@ export const AlertLog = ({ alerts }: { alerts: Alert[] }) => {
           <Activity className="w-4 h-4 text-cyan-400" />
           Live Alert Log
         </h3>
-        <span className="text-xs text-slate-500 font-mono">REAL-TIME</span>
+        <span className="text-sm text-slate-500 font-mono">REAL-TIME</span>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         <AnimatePresence initial={false}>
@@ -39,19 +39,19 @@ export const AlertLog = ({ alerts }: { alerts: Alert[] }) => {
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider">{alert.type}</span>
-                  <span className="text-[10px] opacity-60 flex items-center gap-1">
+                  <span className="text-sm font-bold uppercase tracking-wider">{alert.type}</span>
+                  <span className="text-[12px] opacity-60 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {alert.timestamp}
                   </span>
                 </div>
-                <p className="text-sm leading-tight">{alert.message}</p>
+                <p className="text-base leading-tight">{alert.message}</p>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
         {alerts.length === 0 && (
-          <div className="h-full flex items-center justify-center text-slate-600 text-sm italic">
+          <div className="h-full flex items-center justify-center text-slate-600 text-base italic">
             Monitoring active...
           </div>
         )}
