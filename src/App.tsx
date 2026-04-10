@@ -44,8 +44,7 @@ export default function App() {
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [isSimulated, setIsSimulated] = useState(false);
   const [respiratoryRate, setRespiratoryRate] = useState(42);
-  const [heartRate, setHeartRate] = useState(124);
-  const [spo2, setSpo2] = useState(98);
+
   const [temp, setTemp] = useState(36.8);
   const [apneaTimer, setApneaTimer] = useState(0);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -85,28 +84,7 @@ export default function App() {
         return next;
       });
 
-      // Heart Rate Simulation (Normal: 120-160)
-      setHeartRate(prev => {
-        const change = Math.floor(Math.random() * 5) - 2;
-        let next = prev + change;
-        if (next < 110) next = 120;
-        if (next > 170) next = 160;
-        return next;
-      });
 
-      // SpO2 Simulation (Normal: 95-100)
-      setSpo2(prev => {
-        const rand = Math.random();
-        let next;
-        if (rand < 0.05) { // 5% chance of desaturation
-          next = Math.floor(Math.random() * 5) + 85;
-          addAlert('Warning', `Low SpO2 detected: ${next}%`, 'medium');
-        } else {
-          const change = Math.floor(Math.random() * 3) - 1;
-          next = Math.max(94, Math.min(100, prev + change));
-        }
-        return next;
-      });
     }, 4000);
 
     return () => clearInterval(interval);
@@ -300,22 +278,6 @@ export default function App() {
                   trend="Stable" 
                 />
                 <StatCard 
-                  icon={Heart} 
-                  label="Heart Rate" 
-                  value={heartRate} 
-                  unit="BPM" 
-                  color="bg-[#86efac]" 
-                  trend="Normal" 
-                />
-                <StatCard 
-                  icon={Droplets} 
-                  label="SpO2 Level" 
-                  value={spo2} 
-                  unit="%" 
-                  color="bg-cyan-400" 
-                  trend="98%" 
-                />
-                <StatCard 
                   icon={Thermometer} 
                   label="Body Temp" 
                   value={temp} 
@@ -473,7 +435,7 @@ export default function App() {
                       <img src="https://i.pravatar.cc/150?u=nurse" alt="Nurse" className="w-full h-full object-cover" />
                     </div>
                     <div className="text-left">
-                      <p className="text-[10px] font-bold text-white">Nurse Sarah J.</p>
+                      <p className="text-[10px] font-bold text-white">Nurse Priya S.</p>
                       <p className="text-[8px] text-slate-500 uppercase tracking-widest">Primary Caregiver</p>
                     </div>
                   </div>

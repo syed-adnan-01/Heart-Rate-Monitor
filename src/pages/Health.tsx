@@ -27,15 +27,7 @@ export const HealthPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <HealthMetricCard 
-          icon={Heart} 
-          label="Avg Heart Rate" 
-          value="132" 
-          unit="BPM" 
-          trend="+2.4%" 
-          isPositive={false}
-          color="text-emerald-400"
-        />
+
         <HealthMetricCard 
           icon={Activity} 
           label="Avg Resp Rate" 
@@ -45,15 +37,7 @@ export const HealthPage = () => {
           isPositive={true}
           color="text-orange-400"
         />
-        <HealthMetricCard 
-          icon={Droplets} 
-          label="Avg SpO2" 
-          value="98.2" 
-          unit="%" 
-          trend="+0.5%" 
-          isPositive={true}
-          color="text-cyan-400"
-        />
+
         <HealthMetricCard 
           icon={Thermometer} 
           label="Avg Temp" 
@@ -70,10 +54,7 @@ export const HealthPage = () => {
           <div className="flex justify-between items-center mb-8">
             <h3 className="font-bold text-lg">24-Hour Physiological Trends</h3>
             <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-cyan-400" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Heart Rate</span>
-              </div>
+
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-400" />
                 <span className="text-[10px] font-bold text-slate-500 uppercase">Resp Rate</span>
@@ -84,10 +65,7 @@ export const HealthPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={HEALTH_HISTORY}>
                 <defs>
-                  <linearGradient id="colorHr" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#22d3ee" stopOpacity={0}/>
-                  </linearGradient>
+
                   <linearGradient id="colorRr" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#fb923c" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#fb923c" stopOpacity={0}/>
@@ -100,7 +78,7 @@ export const HealthPage = () => {
                   contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="hr" stroke="#22d3ee" strokeWidth={3} fillOpacity={1} fill="url(#colorHr)" />
+
                 <Area type="monotone" dataKey="rr" stroke="#fb923c" strokeWidth={3} fillOpacity={1} fill="url(#colorRr)" />
               </AreaChart>
             </ResponsiveContainer>

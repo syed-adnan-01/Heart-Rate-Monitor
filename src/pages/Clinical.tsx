@@ -4,7 +4,7 @@ import { Stethoscope, Clipboard, TestTube, Pill, FileText, ChevronRight, Search,
 const CLINICAL_TASKS = [
   { id: 1, title: 'Morning Rounds Assessment', time: '08:30 AM', status: 'Completed', doctor: 'Dr. Fred' },
   { id: 2, title: 'Blood Gas Analysis', time: '10:15 AM', status: 'Pending', doctor: 'Lab' },
-  { id: 3, title: 'Feeding Protocol Update', time: '12:00 PM', status: 'Scheduled', doctor: 'Nurse Sarah' },
+  { id: 3, title: 'Feeding Protocol Update', time: '12:00 PM', status: 'Scheduled', doctor: 'Nurse Priya' },
   { id: 4, title: 'Neurological Screening', time: '02:30 PM', status: 'Scheduled', doctor: 'Dr. Chen' },
 ];
 

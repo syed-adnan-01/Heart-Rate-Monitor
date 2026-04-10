@@ -3,7 +3,7 @@ import { Bookmark, FileText, Download, Share2, Search, Filter, Calendar, Clock, 
 
 const PATIENT_RECORDS = [
   { id: 1, title: 'Admission Summary', date: '2026-03-28', type: 'Report', doctor: 'Dr. Fred', size: '1.2 MB' },
-  { id: 2, title: 'Daily Clinical Note - Apr 03', date: '2026-04-03', type: 'Note', doctor: 'Nurse Sarah', size: '450 KB' },
+  { id: 2, title: 'Daily Clinical Note - Apr 03', date: '2026-04-03', type: 'Note', doctor: 'Nurse Priya', size: '450 KB' },
   { id: 3, title: 'Respiratory Trend Analysis', date: '2026-04-02', type: 'Data', doctor: 'NeoVision AI', size: '2.8 MB' },
   { id: 4, title: 'Blood Gas Results', date: '2026-04-01', type: 'Lab', doctor: 'Lab Services', size: '850 KB' },
   { id: 5, title: 'Neurological Assessment', date: '2026-03-30', type: 'Report', doctor: 'Dr. Chen', size: '1.5 MB' },

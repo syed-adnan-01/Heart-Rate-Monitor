@@ -4,7 +4,7 @@ import { LayoutGrid, Plus, Settings, Eye, EyeOff, Move, Trash2, Info } from 'luc
 const WIDGETS = [
   { id: 1, title: 'Real-time Waveform', description: 'Live respiratory and ECG visualization.', active: true, size: 'Large' },
   { id: 2, title: 'Alert Log', description: 'System alerts and clinical notifications.', active: true, size: 'Medium' },
-  { id: 3, title: 'Vitals Summary', description: 'Quick view of HR, RR, SpO2, and Temp.', active: true, size: 'Small' },
+  { id: 3, title: 'Vitals Summary', description: 'Quick view of RR and Temp.', active: true, size: 'Small' },
   { id: 4, title: 'Clinical Strategy', description: 'Access to treatment protocols and decks.', active: true, size: 'Medium' },
   { id: 5, title: 'Weekly Stability', description: '7-day trend analysis of patient stability.', active: false, size: 'Medium' },
   { id: 6, title: 'Developmental Milestones', description: 'Progress tracking for growth and feeding.', active: false, size: 'Small' },
