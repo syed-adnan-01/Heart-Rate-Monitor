@@ -135,14 +135,18 @@ export default function App() {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setIsCameraReady(true);
-        setIsSimulated(false);
-        setIsMonitoring(true);
-        addAlert('Normal', 'Clinical camera feed initialized.', 'low');
-      }
+      streamRef.current = stream;
+      setIsCameraReady(true);
+      setIsSimulated(false);
+      setIsMonitoring(true);
+      
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 50);
+
+      addAlert('Normal', 'Clinical camera feed initialized.', 'low');
     } catch (err) {
       console.error("Error accessing camera:", err);
       addAlert('Warning', 'Hardware camera not found. Entering Simulation Mode.', 'medium');
@@ -349,26 +353,35 @@ export default function App() {
                 {/* Bottom Feed Section */}
                 <div className="grid grid-cols-1 gap-6 mt-auto">
                   <div className="card-glass rounded-5xl p-6 min-h-[320px] relative overflow-hidden group">
+                    <div className="absolute top-6 right-6 z-10 flex gap-3">
+                      {!isCameraReady ? (
+                        <button onClick={startCamera} className="bg-cyan-500 hover:bg-cyan-400 text-black px-4 py-2 rounded-full font-bold text-xs transition-colors flex items-center gap-2 shadow-lg">
+                          <Camera className="w-4 h-4" /> Start Camera
+                        </button>
+                      ) : (
+                        <button onClick={stopCamera} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full font-bold text-xs transition-colors flex items-center gap-2 shadow-lg">
+                          <Square className="w-4 h-4 fill-current" /> Stop Camera
+                        </button>
+                      )}
+                    </div>
+                    
                     {!isCameraReady ? (
-                      <div className="flex flex-col items-center justify-center h-full text-center">
+                      <div className="flex flex-col items-center justify-center h-full text-center pt-8">
                         <Camera className="w-12 h-12 text-slate-700 mb-4" />
-                        <button onClick={startCamera} className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-slate-200 transition-colors">Start Feed</button>
+                        <p className="text-sm font-bold text-slate-500">Camera is currently inactive</p>
                       </div>
                     ) : (
                       <>
                         {isSimulated ? (
-                          <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65ee9?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover opacity-40 grayscale rounded-4xl" referrerPolicy="no-referrer" />
+                          <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65ee9?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover rounded-4xl" referrerPolicy="no-referrer" />
                         ) : (
-                          <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover grayscale opacity-40 rounded-4xl" />
+                          <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover rounded-4xl" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#111418] to-transparent" />
-                        <div className="absolute bottom-6 left-6">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111418]/80 to-transparent pointer-events-none" />
+                        <div className="absolute bottom-6 left-6 pointer-events-none">
                           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Live Monitor</p>
                           <h4 className="text-lg font-bold text-white">Newborn Unit 04</h4>
                         </div>
-                        <button onClick={stopCamera} className="absolute top-6 right-6 p-2 bg-red-500/20 text-red-500 rounded-full border border-red-500/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Square className="w-4 h-4 fill-current" />
-                        </button>
                       </>
                     )}
                   </div>
