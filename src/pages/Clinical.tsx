@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Stethoscope, Clipboard, TestTube, Pill, FileText, ChevronRight, Search, Filter } from 'lucide-react';
 
 const CLINICAL_TASKS = [
@@ -9,6 +9,13 @@ const CLINICAL_TASKS = [
 ];
 
 export const ClinicalPage = () => {
+  const [labRequested, setLabRequested] = useState(false);
+
+  const handleRequestLab = () => {
+    setLabRequested(true);
+    setTimeout(() => setLabRequested(false), 3000); // Reset after 3s
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
@@ -122,8 +129,16 @@ export const ClinicalPage = () => {
               <DiagnosticItem label="Bicarbonate" value="24 mEq/L" status="Normal" />
               <DiagnosticItem label="Lactate" value="1.2 mmol/L" status="Normal" />
             </div>
-            <button className="w-full mt-8 py-3 bg-cyan-500 text-black rounded-2xl text-xs font-bold hover:bg-cyan-400 transition-colors">
-              Request New Lab Work
+            <button 
+              onClick={handleRequestLab}
+              className={cn(
+                "w-full mt-8 py-3 rounded-2xl text-xs font-bold transition-all duration-300",
+                labRequested 
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" 
+                  : "bg-cyan-500 text-black hover:bg-cyan-400"
+              )}
+            >
+              {labRequested ? 'Request mail sent' : 'Request New Lab Work'}
             </button>
           </div>
 

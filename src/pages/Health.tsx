@@ -13,6 +13,10 @@ const HEALTH_HISTORY = [
 ];
 
 export const HealthPage = () => {
+  const handleExportPDF = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
@@ -20,8 +24,13 @@ export const HealthPage = () => {
           <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Patient Health Summary</h2>
           <p className="text-slate-500 text-sm">Comprehensive vitals analysis and physiological trends for Unit 04.</p>
         </div>
-        <div className="flex gap-3">
-          <button className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-xs font-bold transition-colors">Export PDF</button>
+        <div className="flex gap-3 no-print">
+          <button 
+            onClick={handleExportPDF} 
+            className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-xs font-bold transition-colors"
+          >
+            Export PDF
+          </button>
           <button className="px-6 py-2 bg-cyan-500 text-black rounded-full text-xs font-bold transition-colors">Update Assessment</button>
         </div>
       </div>
