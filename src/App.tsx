@@ -189,6 +189,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [records, setRecords] = useState<PatientRecord[]>(INITIAL_PATIENT_RECORDS);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showDoctorInfo, setShowDoctorInfo] = useState(false);
 
   const markRecordAsRead = (id: string | number) => {
     setRecords(prev => prev.map(record => 
@@ -197,6 +198,7 @@ export default function App() {
   };
   const dateInputRef = useRef<HTMLInputElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const doctorInfoRef = useRef<HTMLDivElement>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -257,18 +259,21 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isMonitoring]);
 
-  // Close notifications on click outside
+  // Close notifications and doctor info on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
       }
+      if (doctorInfoRef.current && !doctorInfoRef.current.contains(event.target as Node)) {
+        setShowDoctorInfo(false);
+      }
     };
-    if (showNotifications) {
+    if (showNotifications || showDoctorInfo) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showNotifications]);
+  }, [showNotifications, showDoctorInfo]);
 
   // Apnea Timer Logic
   useEffect(() => {
@@ -412,15 +417,73 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="flex items-center gap-3 text-right hover:bg-white/5 active:scale-95 p-2 rounded-full transition-all cursor-pointer">
-              <div>
-                <p className="text-sm font-bold text-white">Hello, Dr. Dhoni</p>
-                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Neonatologist</p>
-              </div>
-              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10">
-                <img src="/doc_avatar.png" alt="User" className="w-full h-full object-cover" />
-              </div>
-            </button>
+            <div className="relative" ref={doctorInfoRef}>
+              <button 
+                onClick={() => setShowDoctorInfo(!showDoctorInfo)}
+                className={cn(
+                  "flex items-center gap-3 text-right hover:bg-white/5 active:scale-95 p-2 rounded-full transition-all cursor-pointer",
+                  showDoctorInfo && "bg-white/10"
+                )}
+              >
+                <div>
+                  <p className="text-sm font-bold text-white">Hello, Dr. Dhoni</p>
+                  <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Neonatologist</p>
+                </div>
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10">
+                  <img src="/doc_avatar.png" alt="User" className="w-full h-full object-cover" />
+                </div>
+              </button>
+
+              <AnimatePresence>
+                {showDoctorInfo && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-4 w-[320px] z-50 overflow-hidden"
+                  >
+                    <div className="card-glass rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                      <div className="p-6 bg-linear-to-b from-white/5 to-transparent">
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-cyan-500/30">
+                            <img src="/doc_avatar.png" alt="Dr. Dhoni" className="w-full h-full object-cover" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg text-white">Dr. Dhoni</h3>
+                            <p className="text-xs text-cyan-400 font-medium">Senior Neonatologist</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Department</p>
+                            <p className="text-sm text-slate-200">Neonatal ICU (NICU)</p>
+                          </div>
+                          <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Experience</p>
+                            <p className="text-sm text-slate-200">15+ Years specialized care</p>
+                          </div>
+                          <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Clinic Hours</p>
+                            <p className="text-sm text-slate-200">09:00 AM - 05:00 PM</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 flex flex-col gap-2">
+                          <button className="w-full py-3 bg-cyan-500 text-black rounded-2xl font-bold text-xs hover:bg-cyan-400 transition-colors">
+                            Edit Profile
+                          </button>
+                          <button className="w-full py-3 bg-white/5 text-slate-400 rounded-2xl font-bold text-xs hover:bg-white/10 hover:text-white transition-all">
+                            Sign Out
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <div className="relative" ref={notificationRef}>
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
