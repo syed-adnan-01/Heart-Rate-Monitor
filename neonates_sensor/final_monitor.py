@@ -81,6 +81,19 @@ print("--- HARD-GATE MONITOR: JITTER-KILLER + FLASK MJPEG OVER PORT 5001 ACTIVE 
 flask_thread = threading.Thread(target=run_flask, daemon=True)
 flask_thread.start()
 
+bpm = 0
+status = "STABLE"
+
+def send_data_async(payload):
+    def _send():
+        try:
+            requests.post(BACKEND_URL, json=payload, timeout=2.0)
+        except Exception as e:
+            pass
+    threading.Thread(target=_send, daemon=True).start()
+
+last_post_time = time.time()
+
 try:
     while cap.isOpened():
         ret, frame = cap.read()
@@ -129,7 +142,6 @@ try:
                     centered_val = raw_smoothed - local_mean
                     
                     # --- THE HARD DEAD-ZONE GATE ---
-                    # If signal is weak, force it to 0. If strong, let it through.
                     if abs(centered_val) < dead_zone_gap:
                         final_signal = 0
                     else:
@@ -143,8 +155,8 @@ try:
 
                 # 2. BPM & APNEA LOGIC
                 if final_signal == 0:
-                    bpm = 0
                     status = "CRITICAL: APNEA" if (time.time() - apnea_timer > 10) else "STABLE"
+                    if status == "CRITICAL: APNEA": bpm = 0
                 else:
                     # Rhythmic Peak Detection
                     if final_signal < 0 and going_up:
@@ -155,13 +167,17 @@ try:
                             bpm_history.append(bpm)
                             last_peak_time, apnea_timer = curr_t, curr_t
                             status = "NORMAL"
-                            try: requests.post(BACKEND_URL, json={"respiratoryRate": int(bpm), "status": status}, timeout=0.5)
-                            except Exception as e: pass
                         going_up = False
                     elif final_signal > 0:
                         going_up = True
 
         if time.time() - apnea_timer > 10: status = "CRITICAL: APNEA"; bpm = 0
+
+        # LIVE SYNC: Post to backend every 1.0 seconds
+        curr_time = time.time()
+        if curr_time - last_post_time > 1.0:
+            last_post_time = curr_time
+            send_data_async({"respiratoryRate": int(bpm), "status": status})
 
         # UI
         wave_display.fill(0)
