@@ -2,10 +2,10 @@ import React from 'react';
 import { Stethoscope, Clipboard, TestTube, Pill, FileText, ChevronRight, Search, Filter } from 'lucide-react';
 
 const CLINICAL_TASKS = [
-  { id: 1, title: 'Morning Rounds Assessment', time: '08:30 AM', status: 'Completed', doctor: 'Dr. Fred' },
+  { id: 1, title: 'Morning Rounds Assessment', time: '08:30 AM', status: 'Completed', doctor: 'Dr. Dhoni' },
   { id: 2, title: 'Blood Gas Analysis', time: '10:15 AM', status: 'Pending', doctor: 'Lab' },
   { id: 3, title: 'Feeding Protocol Update', time: '12:00 PM', status: 'Scheduled', doctor: 'Nurse Priya' },
-  { id: 4, title: 'Neurological Screening', time: '02:30 PM', status: 'Scheduled', doctor: 'Dr. Chen' },
+  { id: 4, title: 'Neurological Screening', time: '02:30 PM', status: 'Scheduled', doctor: 'Dr. Ananya Sharma' },
 ];
 
 export const ClinicalPage = () => {
@@ -130,9 +130,9 @@ export const ClinicalPage = () => {
           <div className="card-glass rounded-5xl p-8">
             <h3 className="font-bold text-lg mb-4">Clinical Team</h3>
             <div className="space-y-4">
-              <TeamMember name="Dr. Fredrickson" role="Lead Neonatologist" status="On Duty" />
-              <TeamMember name="Dr. Elena Chen" role="Neurologist" status="On Call" />
-              <TeamMember name="Sarah Jenkins" role="Senior NICU Nurse" status="On Duty" />
+              <TeamMember name="Dr. Dhoni" role="Lead Neonatologist" status="On Duty" />
+              <TeamMember name="Dr. Ananya Sharma" role="Neurologist" status="On Call" />
+              <TeamMember name="Nurse Priya" role="Senior NICU Nurse" status="On Duty" />
             </div>
           </div>
         </div>
