@@ -6,6 +6,19 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --radius-4xl: 2rem;
   --radius-5xl: 2.5rem;
+
+  /* Custom Theme Colors based on Fluid Analytics Dashboard */
+  --color-theme-bg: #061a29;
+  --color-theme-card: #0d3446;
+  --color-theme-card-hover: #12455c;
+  --color-theme-border: #17536d;
+  
+  --color-accent-cyan: #00e1ff;
+  --color-accent-yellow: #f8cd51;
+  
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #7fa8b8;
+  --color-text-muted: #4a7587;
 }
 
 :root {
@@ -13,20 +26,32 @@
 }
 
 body {
-  @apply bg-[#08090a] text-slate-200 antialiased;
+  @apply bg-theme-bg text-text-primary antialiased;
 }
 
 /* Reference-inspired Glassmorphism */
 .card-glass {
-  @apply bg-[#111418] border border-white/5 shadow-xl transition-all duration-300;
+  @apply bg-theme-card border border-theme-border shadow-2xl transition-all duration-300;
+  /* Add subtle inner radial gradient to mimic the light reflection in the image cards */
+  background-image: radial-gradient(circle at 50% 0%, rgba(23, 83, 109, 0.3) 0%, transparent 60%);
 }
 
 .card-glass:hover {
-  @apply border-white/10 bg-[#161a20] -translate-y-1 shadow-2xl shadow-cyan-500/5;
+  @apply bg-theme-card-hover shadow-cyan-500/10 -translate-y-1;
+  background-image: radial-gradient(circle at 50% 0%, rgba(23, 83, 109, 0.5) 0%, transparent 70%);
 }
 
-.pill-active {
-  @apply bg-cyan-500/20 text-cyan-400 border border-cyan-500/30;
+/* Nav Pills */
+.pill-inactive {
+  @apply bg-transparent text-text-secondary border border-theme-border hover:bg-theme-border/30 hover:text-text-primary transition-colors;
+}
+
+.pill-active-cyan {
+  @apply bg-theme-border/40 text-accent-cyan border border-accent-cyan/50 shadow-[0_0_15px_rgba(0,225,255,0.1)];
+}
+
+.pill-active-yellow {
+  @apply bg-accent-yellow text-slate-900 border border-transparent shadow-[0_0_15px_rgba(248,205,81,0.2)];
 }
 
 /* Custom scrollbar for the alert log */
@@ -37,10 +62,10 @@ body {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-slate-800 rounded-full;
+  @apply bg-theme-border rounded-full;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-700;
+  @apply bg-accent-cyan/50;
 }
 
 @keyframes scan {
@@ -60,24 +85,34 @@ body {
   animation: ring 0.2s ease-in-out infinite;
 }
 
-/* Recharts Brush Styling */
+/* Recharts Custom Styling */
 .recharts-brush-slide {
-  fill: #22d3ee;
+  fill: #00e1ff;
   fill-opacity: 0.05;
 }
 
 .recharts-brush-traveller rect {
-  fill: #1e293b;
-  stroke: #22d3ee;
+  fill: #061a29;
+  stroke: #00e1ff;
   stroke-width: 1;
 }
 
 .recharts-brush-texts {
-  @apply font-mono text-[12px] fill-slate-500;
+  @apply font-mono text-[12px] fill-text-secondary;
 }
 
 .recharts-brush rect {
-  stroke: #1e293b;
+  stroke: #17536d;
+}
+
+.recharts-cartesian-grid-horizontal line, 
+.recharts-cartesian-grid-vertical line {
+  stroke: #17536d !important;
+  stroke-opacity: 0.3;
+}
+
+.recharts-text {
+  fill: #7fa8b8 !important;
 }
 
 /* Professional Print Styling for Clinical Reports */
@@ -105,15 +140,8 @@ body {
     color: black !important;
   }
 
-  .text-slate-500, .text-slate-400 {
+  .text-text-secondary, .text-text-muted {
     color: #64748b !important;
-  }
-
-  /* Force background colors for charts/metrics in PDF */
-  .bg-cyan-500\/10, .bg-emerald-500\/10, .bg-orange-500\/10 {
-    background-color: rgba(0, 0, 0, 0.05) !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
   }
 
   canvas, svg {

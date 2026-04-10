@@ -167,13 +167,13 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
 ];
 
 const WEEKLY_STABILITY_DATA = [
-  { day: 'Sun', value: 82, color: 'bg-cyan-400/40' },
-  { day: 'Mon', value: 78, color: 'bg-cyan-400/40' },
-  { day: 'Tue', value: 45, color: 'bg-orange-400/40' },
-  { day: 'Wed', value: 88, color: 'bg-emerald-400/40' },
-  { day: 'Thu', value: 92, color: 'bg-emerald-400/40' },
-  { day: 'Fri', value: 85, color: 'bg-cyan-400/40' },
-  { day: 'Sat', value: 89, color: 'bg-cyan-400/40' },
+  { day: 'Sun', value: 82, color: 'bg-accent-cyan/40' },
+  { day: 'Mon', value: 78, color: 'bg-accent-cyan/40' },
+  { day: 'Tue', value: 45, color: 'bg-accent-yellow/80' },
+  { day: 'Wed', value: 88, color: 'bg-accent-cyan/40' },
+  { day: 'Tha', value: 92, color: 'bg-accent-cyan/40' },
+  { day: 'Fri', value: 85, color: 'bg-accent-cyan/40' },
+  { day: 'Sad', value: 89, color: 'bg-accent-cyan/40' },
 ];
 
 export default function App() {
@@ -368,10 +368,8 @@ export default function App() {
     <button 
       onClick={() => setActiveTab(label)}
       className={cn(
-        "flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 font-medium text-base",
-        activeTab === label 
-          ? "bg-cyan-400/20 text-cyan-400 border border-cyan-400/30" 
-          : "text-slate-500 hover:text-slate-300"
+        "flex items-center gap-2 px-6 py-2.5 rounded-full font-medium text-base",
+        activeTab === label ? "pill-active-cyan" : "pill-inactive"
       )}
     >
       <Icon className="w-4 h-4" />
@@ -383,22 +381,22 @@ export default function App() {
     <div className="card-glass p-6 rounded-5xl flex flex-col justify-between h-full group hover:bg-[#161a20] transition-colors">
       <div className="flex justify-between items-start mb-4">
         <div className={cn("p-3 rounded-2xl", color)}>
-          <Icon className="w-5 h-5 text-white" />
+          <Icon className="w-5 h-5 text-text-primary" />
         </div>
-        <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">{trend}</span>
+        <span className="text-sm font-bold text-text-secondary uppercase tracking-widest">{trend}</span>
       </div>
       <div>
-        <p className="text-sm font-semibold text-slate-500 mb-1">{label}</p>
+        <p className="text-sm font-semibold text-text-secondary mb-1">{label}</p>
         <div className="flex items-baseline gap-1">
-          <h4 className="text-4xl font-bold text-white tracking-tight">{value}</h4>
-          <span className="text-sm font-medium text-slate-500">{unit}</span>
+          <h4 className="text-4xl font-bold text-text-primary tracking-tight">{value}</h4>
+          <span className="text-sm font-medium text-text-secondary">{unit}</span>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-slate-200 font-sans p-6">
+    <div className="min-h-screen bg-theme-bg text-text-primary font-sans p-6">
       <div className="max-w-[1600px] mx-auto space-y-8">
         
         {/* Top Header/Nav */}
@@ -408,10 +406,10 @@ export default function App() {
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
                 <Baby className="text-black w-7 h-7" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">NeoVision</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-text-primary">NeoVision</h1>
             </div>
             
-            <nav className="hidden xl:flex items-center gap-2 bg-[#111418] p-1.5 rounded-full border border-white/5">
+            <nav className="hidden xl:flex items-center gap-2 bg-theme-card p-1.5 rounded-full border border-theme-border">
               <NavItem icon={Home} label="Home" />
               <NavItem icon={Activity} label="Health" />
               <NavItem icon={Stethoscope} label="Clinical" />
@@ -429,8 +427,8 @@ export default function App() {
                 )}
               >
                 <div>
-                  <p className="text-base font-bold text-white">Hello, Dr. Dhoni</p>
-                  <p className="text-[12px] text-slate-500 font-mono uppercase tracking-widest">Neonatologist</p>
+                  <p className="text-base font-bold text-text-primary">Hello, Dr. Dhoni</p>
+                  <p className="text-[12px] text-text-secondary font-mono uppercase tracking-widest">Neonatologist</p>
                 </div>
                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10">
                   <img src="/doc_avatar.png" alt="User" className="w-full h-full object-cover" />
@@ -448,27 +446,27 @@ export default function App() {
                     <div className="card-glass rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
                       <div className="p-6 bg-linear-to-b from-white/5 to-transparent">
                         <div className="flex items-center gap-4 mb-6">
-                          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-cyan-500/30">
+                          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-accent-cyan/30">
                             <img src="/doc_avatar.png" alt="Dr. Dhoni" className="w-full h-full object-cover" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-xl text-white">Dr. Dhoni</h3>
-                            <p className="text-sm text-cyan-400 font-medium">Senior Neonatologist</p>
+                            <h3 className="font-bold text-xl text-text-primary">Dr. Dhoni</h3>
+                            <p className="text-sm text-accent-cyan font-medium">Senior Neonatologist</p>
                           </div>
                         </div>
                         
                         <div className="space-y-4">
-                          <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
-                            <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1">Department</p>
-                            <p className="text-base text-slate-200">Neonatal ICU (NICU)</p>
+                          <div className="p-3 bg-white/5 rounded-2xl border border-theme-border">
+                            <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest mb-1">Department</p>
+                            <p className="text-base text-text-primary">Neonatal ICU (NICU)</p>
                           </div>
-                          <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
-                            <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1">Experience</p>
-                            <p className="text-base text-slate-200">15+ Years specialized care</p>
+                          <div className="p-3 bg-white/5 rounded-2xl border border-theme-border">
+                            <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest mb-1">Experience</p>
+                            <p className="text-base text-text-primary">15+ Years specialized care</p>
                           </div>
-                          <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
-                            <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1">Clinic Hours</p>
-                            <p className="text-base text-slate-200">09:00 AM - 05:00 PM</p>
+                          <div className="p-3 bg-white/5 rounded-2xl border border-theme-border">
+                            <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest mb-1">Clinic Hours</p>
+                            <p className="text-base text-text-primary">09:00 AM - 05:00 PM</p>
                           </div>
                         </div>
 
@@ -476,7 +474,7 @@ export default function App() {
                           <button className="w-full py-3 bg-cyan-500 text-black rounded-2xl font-bold text-sm hover:bg-cyan-400 transition-colors">
                             Edit Profile
                           </button>
-                          <button className="w-full py-3 bg-white/5 text-slate-400 rounded-2xl font-bold text-sm hover:bg-white/10 hover:text-white transition-all">
+                          <button className="w-full py-3 bg-white/5 text-text-secondary rounded-2xl font-bold text-sm hover:bg-white/10 hover:text-white transition-all">
                             Sign Out
                           </button>
                         </div>
@@ -493,13 +491,13 @@ export default function App() {
                 className={cn(
                   "relative p-3 rounded-full border transition-all duration-300",
                   showNotifications 
-                    ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-400" 
-                    : "bg-[#111418] border-white/5 text-slate-400 hover:bg-slate-800"
+                    ? "bg-accent-cyan/20 border-cyan-500/50 text-accent-cyan" 
+                    : "bg-theme-card border-theme-border text-text-secondary hover:bg-slate-800"
                 )}
               >
                 <Bell className="w-5 h-5" />
                 {alerts.length > 0 && (
-                  <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-[#111418]" />
+                  <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent-yellow rounded-full border-2 border-[#111418]" />
                 )}
               </button>
 
@@ -512,17 +510,17 @@ export default function App() {
                     className="absolute right-0 mt-4 w-[380px] z-50 overflow-hidden"
                   >
                     <div className="card-glass rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-                      <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/5">
-                        <h3 className="font-bold text-base text-white flex items-center gap-2">
-                          <Bell className="w-4 h-4 text-cyan-400" />
+                      <div className="p-5 border-b border-theme-border flex items-center justify-between bg-white/5">
+                        <h3 className="font-bold text-base text-text-primary flex items-center gap-2">
+                          <Bell className="w-4 h-4 text-accent-cyan" />
                           Notifications
                         </h3>
-                        <span className="text-[12px] font-mono text-slate-500 uppercase">Latest System Alerts</span>
+                        <span className="text-[12px] font-mono text-text-secondary uppercase">Latest System Alerts</span>
                       </div>
                       
                       <div className="max-h-[450px] overflow-y-auto custom-scrollbar p-2">
                         {alerts.length === 0 ? (
-                          <div className="py-12 text-center text-slate-500 flex flex-col items-center gap-2">
+                          <div className="py-12 text-center text-text-secondary flex flex-col items-center gap-2">
                             <ShieldAlert className="w-8 h-8 opacity-20" />
                             <p className="text-base font-medium">No new notifications</p>
                           </div>
@@ -535,18 +533,18 @@ export default function App() {
                               >
                                 <div className={cn(
                                   "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                                  alert.severity === 'high' ? "bg-red-500/10 text-red-500" :
-                                  alert.severity === 'medium' ? "bg-orange-500/10 text-orange-500" :
-                                  "bg-cyan-500/10 text-cyan-500"
+                                  alert.severity === 'high' ? "bg-red-500/10 text-accent-cyan" :
+                                  alert.severity === 'medium' ? "bg-orange-500/10 text-accent-yellow" :
+                                  "bg-accent-cyan/10 text-accent-cyan"
                                 )}>
                                   <Activity className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{alert.type}</span>
-                                    <span className="text-[12px] text-slate-500">{alert.timestamp}</span>
+                                    <span className="text-[12px] font-bold uppercase tracking-wider text-text-secondary">{alert.type}</span>
+                                    <span className="text-[12px] text-text-secondary">{alert.timestamp}</span>
                                   </div>
-                                  <p className="text-sm text-slate-300 leading-snug truncate">{alert.message}</p>
+                                  <p className="text-sm text-text-primary leading-snug truncate">{alert.message}</p>
                                 </div>
                               </button>
                             ))}
@@ -554,10 +552,10 @@ export default function App() {
                         )}
                       </div>
                       
-                      <div className="p-4 bg-white/5 text-center border-t border-white/5">
+                      <div className="p-4 bg-white/5 text-center border-t border-theme-border">
                         <button 
                           onClick={() => setAlerts([])}
-                          className="text-[12px] font-bold text-cyan-400 hover:text-cyan-300 transition-colors uppercase tracking-[0.2em]"
+                          className="text-[12px] font-bold text-accent-cyan hover:text-cyan-300 transition-colors uppercase tracking-[0.2em]"
                         >
                           Clear All Activity
                         </button>
@@ -572,7 +570,7 @@ export default function App() {
 
         {/* Dashboard Title & Quick Stats */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
-          <h2 className="text-5xl font-bold tracking-tight text-white">{activeTab === 'Home' ? 'Dashboard' : activeTab}</h2>
+          <h2 className="text-5xl font-bold tracking-tight text-text-primary">{activeTab === 'Home' ? 'Dashboard' : activeTab}</h2>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <div className="bg-[#d9f99d] text-black px-5 sm:px-6 py-2.5 rounded-full flex items-center gap-2 sm:gap-3 font-bold text-base whitespace-nowrap">
               <Activity className="w-4 h-4" />
@@ -580,12 +578,12 @@ export default function App() {
             </div>
             <div 
               onClick={() => dateInputRef.current?.showPicker()}
-              className="relative bg-[#111418] text-white rounded-full flex items-center gap-3 px-5 sm:px-6 py-2.5 font-bold text-base border border-white/5 hover:border-cyan-500/30 hover:bg-white/5 transition-all cursor-pointer group"
+              className="relative bg-theme-card text-text-primary rounded-full flex items-center gap-3 px-5 sm:px-6 py-2.5 font-bold text-base border border-theme-border hover:border-cyan-500/30 hover:bg-white/5 transition-all cursor-pointer group"
             >
-              <Calendar className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <Calendar className="w-4 h-4 text-accent-cyan group-hover:scale-110 transition-transform" />
               <div className="flex items-center gap-2">
-                <span className="text-[12px] text-slate-500 uppercase tracking-widest hidden lg:block">Change Date:</span>
-                <span className="text-white">
+                <span className="text-[12px] text-text-secondary uppercase tracking-widest hidden lg:block">Change Date:</span>
+                <span className="text-text-primary">
                   {new Date(selectedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long' })}
                 </span>
               </div>
@@ -620,7 +618,7 @@ export default function App() {
                     label="Respiratory Rate" 
                     value={respiratoryRate} 
                     unit="BPM" 
-                    color="bg-orange-500" 
+                    color="bg-accent-yellow" 
                     trend="Stable" 
                   />
                 </div>
@@ -636,17 +634,17 @@ export default function App() {
                 <div className="card-glass rounded-5xl p-8 min-h-[650px] flex flex-col">
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
-                      <button className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+                      <button className="p-2 bg-theme-card-hover rounded-full hover:bg-slate-700 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
                       <span className="font-bold text-base">Real-time Waveform Analysis</span>
-                      <button className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+                      <button className="p-2 bg-theme-card-hover rounded-full hover:bg-slate-700 transition-colors"><ChevronRight className="w-4 h-4" /></button>
                     </div>
                     <div className="flex gap-2">
-                      <div className="bg-cyan-400/20 text-cyan-400 px-4 py-1 rounded-full text-[12px] font-bold">+65%</div>
+                      <div className="bg-cyan-400/20 text-accent-cyan px-4 py-1 rounded-full text-[12px] font-bold">+65%</div>
                       <div className={cn(
                         "px-4 py-1 rounded-full text-[12px] font-bold transition-all duration-300",
                         isCameraReady 
-                          ? "bg-red-500/20 text-red-500 border border-red-500/30 animate-pulse" 
-                          : "bg-slate-800 text-slate-400"
+                          ? "bg-red-500/20 text-accent-cyan border border-red-500/30 animate-pulse" 
+                          : "bg-theme-card-hover text-text-secondary"
                       )}>
                         LIVE
                       </div>
@@ -654,17 +652,17 @@ export default function App() {
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-colors">
-                      <p className="text-[12px] font-bold text-slate-500 uppercase mb-1">Inspiration Time</p>
-                      <p className="text-xl font-mono text-cyan-400">0.42s</p>
+                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-theme-border hover:border-cyan-500/30 transition-colors">
+                      <p className="text-[12px] font-bold text-text-secondary uppercase mb-1">Inspiration Time</p>
+                      <p className="text-xl font-mono text-accent-cyan">0.42s</p>
                     </div>
-                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-colors">
-                      <p className="text-[12px] font-bold text-slate-500 uppercase mb-1">Expiration Time</p>
-                      <p className="text-xl font-mono text-cyan-400">0.85s</p>
+                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-theme-border hover:border-cyan-500/30 transition-colors">
+                      <p className="text-[12px] font-bold text-text-secondary uppercase mb-1">Expiration Time</p>
+                      <p className="text-xl font-mono text-accent-cyan">0.85s</p>
                     </div>
-                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-colors">
-                      <p className="text-[12px] font-bold text-slate-500 uppercase mb-1">I:E Ratio</p>
-                      <p className="text-xl font-mono text-cyan-400">1:2.0</p>
+                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-theme-border hover:border-cyan-500/30 transition-colors">
+                      <p className="text-[12px] font-bold text-text-secondary uppercase mb-1">I:E Ratio</p>
+                      <p className="text-xl font-mono text-accent-cyan">1:2.0</p>
                     </div>
                   </div>
 
@@ -674,8 +672,8 @@ export default function App() {
                   
                   <div className="mt-8">
                     <div className="flex justify-between items-center mb-4">
-                      <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">7-Day Stability Trend</p>
-                      <p className="text-[12px] font-bold text-emerald-400 uppercase tracking-widest">Avg: 85.2%</p>
+                      <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest">7-Day Stability Trend</p>
+                      <p className="text-[12px] font-bold text-accent-yellow uppercase tracking-widest">Avg: 85.2%</p>
                     </div>
                     <div className="grid grid-cols-7 gap-3">
                       {WEEKLY_STABILITY_DATA.map((item) => (
@@ -688,10 +686,10 @@ export default function App() {
                             />
                             {/* Tooltip on hover */}
                             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/40 flex items-center justify-center transition-opacity">
-                              <span className="text-[12px] font-bold text-white">{item.value}%</span>
+                              <span className="text-[12px] font-bold text-text-primary">{item.value}%</span>
                             </div>
                           </div>
-                          <span className="text-[12px] font-bold text-slate-500 uppercase">{item.day}</span>
+                          <span className="text-[12px] font-bold text-text-secondary uppercase">{item.day}</span>
                         </div>
                       ))}
                     </div>
@@ -707,7 +705,7 @@ export default function App() {
                           <Camera className="w-4 h-4" /> Start Camera
                         </button>
                       ) : (
-                        <button onClick={stopCamera} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm transition-colors flex items-center gap-2 shadow-lg">
+                        <button onClick={stopCamera} className="bg-accent-cyan hover:bg-red-600 text-text-primary px-4 py-2 rounded-full font-bold text-sm transition-colors flex items-center gap-2 shadow-lg">
                           <Square className="w-4 h-4 fill-current" /> Stop Camera
                         </button>
                       )}
@@ -716,7 +714,7 @@ export default function App() {
                     {!isCameraReady ? (
                       <div className="flex flex-col items-center justify-center h-full text-center pt-8">
                         <Camera className="w-12 h-12 text-slate-700 mb-4" />
-                        <p className="text-base font-bold text-slate-500">Camera is currently inactive</p>
+                        <p className="text-base font-bold text-text-secondary">Camera is currently inactive</p>
                       </div>
                     ) : (
                       <>
@@ -727,8 +725,8 @@ export default function App() {
                         )}
                         <div className="absolute inset-0 bg-linear-to-t from-[#111418]/80 to-transparent pointer-events-none" />
                         <div className="absolute bottom-6 left-6 pointer-events-none">
-                          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Live Monitor</p>
-                          <h4 className="text-xl font-bold text-white">Newborn Unit 04</h4>
+                          <p className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-1">Live Monitor</p>
+                          <h4 className="text-xl font-bold text-text-primary">Newborn Unit 04</h4>
                         </div>
                       </>
                     )}
@@ -741,25 +739,25 @@ export default function App() {
                 <div className="card-glass rounded-5xl p-6">
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="font-bold text-base">Clinical Notes</h3>
-                    <button className="text-cyan-400 text-sm font-bold">Today</button>
+                    <button className="text-accent-cyan text-sm font-bold">Today</button>
                   </div>
                   <div className="space-y-4">
-                    <div className="flex gap-4 items-start p-4 bg-slate-800/30 rounded-3xl border border-white/5">
+                    <div className="flex gap-4 items-start p-4 bg-slate-800/30 rounded-3xl border border-theme-border">
                       <div className="w-10 h-10 rounded-full bg-cyan-400/20 flex items-center justify-center shrink-0">
-                        <Activity className="w-5 h-5 text-cyan-400" />
+                        <Activity className="w-5 h-5 text-accent-cyan" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-white mb-1">Morning Assessment</p>
-                        <p className="text-[12px] text-slate-500 leading-relaxed">Respiratory rhythm stable. No signs of distress observed during sleep cycle.</p>
+                        <p className="text-sm font-bold text-text-primary mb-1">Morning Assessment</p>
+                        <p className="text-[12px] text-text-secondary leading-relaxed">Respiratory rhythm stable. No signs of distress observed during sleep cycle.</p>
                       </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-slate-800/30 rounded-3xl border border-white/5">
-                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center shrink-0">
-                        <Droplets className="w-5 h-5 text-emerald-400" />
+                    <div className="flex gap-4 items-start p-4 bg-slate-800/30 rounded-3xl border border-theme-border">
+                      <div className="w-10 h-10 rounded-full bg-accent-yellow/20 flex items-center justify-center shrink-0">
+                        <Droplets className="w-5 h-5 text-accent-yellow" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-white mb-1">Fluid Intake</p>
-                        <p className="text-[12px] text-slate-500 leading-relaxed">Feeding schedule maintained. Hydration levels optimal.</p>
+                        <p className="text-sm font-bold text-text-primary mb-1">Fluid Intake</p>
+                        <p className="text-[12px] text-text-secondary leading-relaxed">Feeding schedule maintained. Hydration levels optimal.</p>
                       </div>
                     </div>
                   </div>
@@ -768,39 +766,39 @@ export default function App() {
                 <div className="card-glass rounded-5xl p-8 flex flex-col items-center text-center">
                   <div className="flex justify-between w-full mb-6">
                     <div className="p-3 bg-cyan-400/20 rounded-2xl">
-                      <LayoutGrid className="w-5 h-5 text-cyan-400" />
+                      <LayoutGrid className="w-5 h-5 text-accent-cyan" />
                     </div>
                     <div className="flex gap-2">
-                      <button className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors"><ChevronLeft className="w-3 h-3" /></button>
-                      <button className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors"><ChevronRight className="w-3 h-3" /></button>
+                      <button className="p-2 bg-theme-card-hover rounded-full hover:bg-slate-700 transition-colors"><ChevronLeft className="w-3 h-3" /></button>
+                      <button className="p-2 bg-theme-card-hover rounded-full hover:bg-slate-700 transition-colors"><ChevronRight className="w-3 h-3" /></button>
                     </div>
                   </div>
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Wellness Score</p>
+                  <p className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-2">Wellness Score</p>
                   <div className="relative w-48 h-48 flex items-center justify-center mb-4">
                     <svg className="w-full h-full -rotate-90">
                       <circle cx="96" cy="96" r="80" fill="none" stroke="#1e293b" strokeWidth="12" />
                       <circle cx="96" cy="96" r="80" fill="none" stroke="#22d3ee" strokeWidth="12" strokeDasharray="502" strokeDashoffset={502 * (1 - 0.85)} strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <h4 className="text-5xl font-black text-white">8.5<span className="text-2xl text-slate-500">/10</span></h4>
-                      <p className="text-[12px] font-bold text-emerald-400 uppercase tracking-widest mt-1">Excellent</p>
+                      <h4 className="text-5xl font-black text-text-primary">8.5<span className="text-2xl text-text-secondary">/10</span></h4>
+                      <p className="text-[12px] font-bold text-accent-yellow uppercase tracking-widest mt-1">Excellent</p>
                     </div>
                   </div>
                   <div className="w-full mb-6">
                     <button 
                       onClick={() => setShowNurseInfo(!showNurseInfo)}
-                      className="flex items-center justify-between gap-3 p-3 bg-slate-800/50 rounded-2xl w-full hover:bg-slate-800 transition-all duration-300"
+                      className="flex items-center justify-between gap-3 p-3 bg-theme-border/50 rounded-2xl w-full hover:bg-slate-800 transition-all duration-300"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden">
                           <img src="/nurse_avatar.png" alt="Nurse" className="w-full h-full object-cover" />
                         </div>
                         <div className="text-left">
-                          <p className="text-[12px] font-bold text-white uppercase italic">Nurse Priya</p>
-                          <p className="text-[10px] text-slate-500 uppercase tracking-widest">Primary Caregiver</p>
+                          <p className="text-[12px] font-bold text-text-primary uppercase italic">Nurse Priya</p>
+                          <p className="text-[10px] text-text-secondary uppercase tracking-widest">Primary Caregiver</p>
                         </div>
                       </div>
-                      {showNurseInfo ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                      {showNurseInfo ? <ChevronUp className="w-4 h-4 text-text-secondary" /> : <ChevronDown className="w-4 h-4 text-text-secondary" />}
                     </button>
 
                     <AnimatePresence>
@@ -812,18 +810,18 @@ export default function App() {
                           className="overflow-hidden"
                         >
                           <div className="pt-3 px-1 space-y-2">
-                            <div className="bg-slate-900/50 rounded-xl p-3 border border-white/5">
-                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Experience</p>
-                              <p className="text-sm text-slate-300 font-medium">8+ Years in Neonatal Care</p>
+                            <div className="bg-theme-card rounded-xl p-3 border border-theme-border">
+                              <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Experience</p>
+                              <p className="text-sm text-text-primary font-medium">8+ Years in Neonatal Care</p>
                             </div>
-                            <div className="bg-slate-900/50 rounded-xl p-3 border border-white/5">
-                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Specialty</p>
-                              <p className="text-sm text-slate-300 font-medium">Acute Respiratory Management</p>
+                            <div className="bg-theme-card rounded-xl p-3 border border-theme-border">
+                              <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Specialty</p>
+                              <p className="text-sm text-text-primary font-medium">Acute Respiratory Management</p>
                             </div>
-                            <div className="bg-slate-900/50 rounded-xl p-3 border border-white/5">
-                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Current Shift</p>
-                              <p className="text-sm text-emerald-400 font-bold flex items-center gap-2">
-                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                            <div className="bg-theme-card rounded-xl p-3 border border-theme-border">
+                              <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Current Shift</p>
+                              <p className="text-sm text-accent-yellow font-bold flex items-center gap-2">
+                                <span className="w-2 h-2 bg-accent-yellow rounded-full animate-pulse" />
                                 On Duty (07:00 - 19:00)
                               </p>
                             </div>
@@ -835,14 +833,14 @@ export default function App() {
 
                   <button 
                     onClick={() => setShowSlides(true)} 
-                    className="w-full py-4 bg-cyan-500/10 border border-cyan-500/20 rounded-3xl flex flex-col items-center gap-3 group hover:bg-cyan-500/20 transition-all duration-300"
+                    className="w-full py-4 bg-accent-cyan/10 border border-accent-cyan/20 rounded-3xl flex flex-col items-center gap-3 group hover:bg-cyan-500/20 transition-all duration-300"
                   >
                     <div className="p-3 bg-cyan-400/20 rounded-2xl group-hover:scale-110 transition-transform">
-                      <Presentation className="w-6 h-6 text-cyan-400" />
+                      <Presentation className="w-6 h-6 text-accent-cyan" />
                     </div>
                     <div>
-                      <p className="text-[12px] font-bold text-cyan-400 uppercase tracking-[0.2em] mb-1">Clinical Strategy</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-widest">View 10-Slide Deck</p>
+                      <p className="text-[12px] font-bold text-accent-cyan uppercase tracking-[0.2em] mb-1">Clinical Strategy</p>
+                      <p className="text-[10px] text-text-secondary uppercase tracking-widest">View 10-Slide Deck</p>
                     </div>
                   </button>
                 </div>

@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { 
   ResponsiveContainer, 
-  LineChart, 
-  Line, 
+  AreaChart, 
+  Area, 
   YAxis, 
   XAxis,
   CartesianGrid, 
+  Tooltip,
   Brush,
-  Tooltip
+  LineChart,
+  Line
 } from 'recharts';
 import { Pause, Play, RotateCcw } from 'lucide-react';
 
@@ -75,84 +77,94 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => setIsPaused(!isPaused)}
-            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-cyan-400 transition-colors flex items-center gap-2 text-sm font-bold"
+            className="p-2 bg-theme-card-hover hover:bg-theme-border rounded-lg text-accent-cyan transition-colors flex items-center gap-2 text-sm font-bold"
           >
             {isPaused ? <Play className="w-3 h-3 fill-current" /> : <Pause className="w-3 h-3 fill-current" />}
             {isPaused ? "RESUME FEED" : "PAUSE TO INSPECT"}
           </button>
           <button 
             onClick={resetGraph}
-            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"
+            className="p-2 bg-theme-card-hover hover:bg-theme-border rounded-lg text-text-secondary transition-colors"
             title="Reset Graph"
           >
             <RotateCcw className="w-3 h-3" />
           </button>
         </div>
         {isPaused && (
-          <span className="text-[12px] font-bold text-amber-500 animate-pulse uppercase tracking-widest">
+          <span className="text-[12px] font-bold text-accent-yellow animate-pulse uppercase tracking-widest">
             Inspection Mode Active
           </span>
         )}
       </div>
 
-      <div className="h-64 w-full bg-slate-900/50 rounded-3xl p-4 border border-slate-800 relative group">
+      <div className="h-64 w-full bg-theme-card rounded-3xl p-4 border border-theme-border relative group">
         <div className="absolute top-4 right-4 flex gap-4 z-10">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-cyan-400" />
-            <span className="text-[12px] font-bold text-slate-400 uppercase">Respiration</span>
+            <div className="w-3 h-3 rounded-full bg-accent-cyan" />
+            <span className="text-[12px] font-bold text-text-secondary uppercase">Respiration</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-400" />
-            <span className="text-[12px] font-bold text-slate-400 uppercase">ECG (Sim)</span>
+            <div className="w-3 h-3 rounded-full bg-accent-yellow" />
+            <span className="text-[12px] font-bold text-text-secondary uppercase">ECG (Sim)</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="colorCyan" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#00e1ff" stopOpacity={0.4}/>
+                <stop offset="95%" stopColor="#00e1ff" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorYellow" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#f8cd51" stopOpacity={0.4}/>
+                <stop offset="95%" stopColor="#f8cd51" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="label" hide />
             <YAxis hide domain={[0, 1.5]} />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
-              itemStyle={{ color: '#22d3ee' }}
-              labelStyle={{ color: '#64748b', fontSize: '10px' }}
+              contentStyle={{ backgroundColor: '#0d3446', border: '1px solid #17536d', borderRadius: '12px' }}
+              itemStyle={{ color: '#ffffff' }}
+              labelStyle={{ color: '#7fa8b8', fontSize: '10px' }}
             />
             {/* Breathing Wave */}
-            <Line
+            <Area
               type="monotone"
               dataKey="value"
-              stroke="#22d3ee"
+              stroke="#00e1ff"
               strokeWidth={3}
+              fill="url(#colorCyan)"
               dot={false}
               isAnimationActive={false}
-              opacity={0.8}
             />
             {/* ECG Wave */}
-            <Line
+            <Area
               type="monotone"
               dataKey="ecg"
-              stroke="#34d399"
+              stroke="#f8cd51"
               strokeWidth={2}
+              fill="url(#colorYellow)"
               dot={false}
               isAnimationActive={false}
-              opacity={0.9}
             />
             <Brush 
               dataKey="label" 
               height={30} 
-              stroke="#1e293b" 
-              fill="#0f172a"
+              stroke="#17536d" 
+              fill="#061a29"
               travellerWidth={10}
               gap={1}
             >
               <LineChart>
-                <Line type="monotone" dataKey="value" stroke="#22d3ee" strokeWidth={1} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="ecg" stroke="#34d399" strokeWidth={1} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="value" stroke="#00e1ff" strokeWidth={1} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="ecg" stroke="#f8cd51" strokeWidth={1} dot={false} isAnimationActive={false} />
               </LineChart>
             </Brush>
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-[12px] text-slate-500 text-center uppercase tracking-[0.2em]">
+      <p className="text-[12px] text-text-secondary text-center uppercase tracking-[0.2em]">
         Use the slider above to zoom and pan through respiratory history
       </p>
     </div>

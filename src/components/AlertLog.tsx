@@ -13,12 +13,12 @@ export interface Alert {
 export const AlertLog = ({ alerts }: { alerts: Alert[] }) => {
   return (
     <div className="flex flex-col h-full bg-slate-900/80 rounded-2xl border border-slate-800 overflow-hidden">
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-        <h3 className="text-slate-200 font-semibold flex items-center gap-2">
-          <Activity className="w-4 h-4 text-cyan-400" />
+      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-theme-card">
+        <h3 className="text-text-primary font-semibold flex items-center gap-2">
+          <Activity className="w-4 h-4 text-accent-cyan" />
           Live Alert Log
         </h3>
-        <span className="text-sm text-slate-500 font-mono">REAL-TIME</span>
+        <span className="text-sm text-text-secondary font-mono">REAL-TIME</span>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         <AnimatePresence initial={false}>
@@ -33,7 +33,7 @@ export const AlertLog = ({ alerts }: { alerts: Alert[] }) => {
                   ? 'bg-red-500/10 border-red-500/20 text-red-400' 
                   : alert.severity === 'medium'
                   ? 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                  : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400'
+                  : 'bg-accent-cyan/10 border-accent-cyan/20 text-accent-cyan'
               }`}
             >
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
