@@ -80,45 +80,7 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
             <span className="text-lg font-black text-accent-cyan ml-2">{respiratoryRate} BPM</span>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorCyan" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00e1ff" stopOpacity={0.4}/>
-                <stop offset="95%" stopColor="#00e1ff" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="label" hide />
-            <YAxis hide domain={[0, 1.5]} />
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#0d3446', border: '1px solid #17536d', borderRadius: '12px' }}
-              itemStyle={{ color: '#ffffff' }}
-              labelStyle={{ color: '#7fa8b8', fontSize: '10px' }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#00e1ff"
-              strokeWidth={3}
-              fill="url(#colorCyan)"
-              dot={false}
-              isAnimationActive={false}
-            />
-            <Brush 
-              dataKey="label" 
-              height={30} 
-              stroke="#17536d" 
-              fill="#061a29"
-              travellerWidth={10}
-              gap={1}
-            >
-              <LineChart>
-                <Line type="monotone" dataKey="value" stroke="#00e1ff" strokeWidth={1} dot={false} isAnimationActive={false} />
-              </LineChart>
-            </Brush>
-          </AreaChart>
-        </ResponsiveContainer>
+        <img src="http://localhost:5001/signal_feed" className="w-full h-full object-cover rounded-xl bg-[#061a29]" alt="Waiting for Python Live Signal..." />
       </div>
       <p className="text-[12px] text-text-secondary text-center uppercase tracking-[0.2em]">
         Use the slider above to zoom and pan through respiratory history

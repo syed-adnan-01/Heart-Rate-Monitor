@@ -414,22 +414,11 @@ export default function App() {
   };
 
   const startCamera = async () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      addAlert('Warning', 'Camera API not supported in this browser/context (Check HTTPS).', 'high');
-      startSimulation();
-      return;
-    }
-
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true 
-      });
-
-      streamRef.current = stream;
       setIsCameraReady(true);
       setIsSimulated(false);
       setIsMonitoring(true);
-      addAlert('Normal', 'Live camera feed connected successfully.', 'low');
+      addAlert('Normal', 'Live AI camera feed connected via Port 5001', 'low');
     } catch (err: any) {
       console.error("Camera Error Details:", err);
       addAlert('Warning', `Camera Error: ${err.name || 'Unknown'}. Entering Simulation.`, 'medium');
@@ -843,7 +832,7 @@ export default function App() {
                         {isSimulated ? (
                           <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65ee9?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover rounded-4xl" referrerPolicy="no-referrer" />
                         ) : (
-                          <video ref={videoPortalRef} autoPlay playsInline muted className="w-full h-full object-cover rounded-4xl" />
+                          <img src="http://localhost:5001/video_feed" className="w-full h-full object-cover rounded-4xl bg-black" alt="Waiting for Python Sensor..." />
                         )}
                         <div className="absolute inset-0 bg-linear-to-t from-[#111418]/80 to-transparent pointer-events-none" />
                         <div className="absolute bottom-6 left-6 pointer-events-none">

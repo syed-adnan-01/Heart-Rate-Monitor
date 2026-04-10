@@ -7,6 +7,47 @@ import time
 import os
 import requests
 import matplotlib.pyplot as plt
+import threading
+from flask import Flask, Response
+from flask_cors import CORS
+
+# --- FLASK M-JPEG SERVER SETUP ---
+app = Flask(__name__)
+CORS(app)
+
+global_frame = None
+global_wave = None
+lock = threading.Lock()
+
+def generate_feed(feed_type="video"):
+    global global_frame, global_wave
+    while True:
+        with lock:
+            img = global_frame if feed_type == "video" else global_wave
+        
+        if img is None:
+            time.sleep(0.05)
+            continue
+            
+        ret, buffer = cv2.imencode('.jpg', img)
+        if not ret:
+            continue
+            
+        frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+        time.sleep(0.03)
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_feed("video"), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/signal_feed')
+def signal_feed():
+    return Response(generate_feed("signal"), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def run_flask():
+    app.run(host='0.0.0.0', port=5001, debug=False, use_reloader=False, threaded=True)
 
 # 1. SETUP
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,13 +64,22 @@ prev_gray = None
 movement_history = []
 session_data = []      
 bpm_history = []       
-wave_display = np.zeros((200, 600, 3), dtype=np.uint8) 
+wave_display = np.zeros((300, 600, 3), dtype=np.uint8) 
 bpm, last_peak_time, apnea_timer = 0, time.time(), time.time()
-status = "INITIALIZING"
+status = "STABILIZING"
 going_up = False
-is_calibrated = False
 
-print("--- FINAL CLINICAL MONITOR: ZERO-CROSSING + SNR GUARD ---")
+# --- THE "DEAD-ZONE" SETTINGS ---
+smooth_roi = None 
+roi_alpha = 0.2     # Fast tracking
+# This is your 'Narrow Gap'. Any jitter between -0.2 and 0.2 is killed to 0.
+dead_zone_gap = 0.22 
+
+print("--- HARD-GATE MONITOR: JITTER-KILLER + FLASK MJPEG OVER PORT 5001 ACTIVE ---")
+
+# Start Flask in background thread
+flask_thread = threading.Thread(target=run_flask, daemon=True)
+flask_thread.start()
 
 try:
     while cap.isOpened():
@@ -43,98 +93,106 @@ try:
         detection_result = detector.detect_for_video(mp_image, int(time.time() * 1000))
         
         # ROI Anchoring
-        roi_x, roi_y, roi_w, roi_h = int(w*0.35), int(h*0.35), int(w*0.3), int(h*0.25)
+        target_roi = [int(w*0.35), int(h*0.35), int(w*0.3), int(h*0.25)]
         if detection_result and detection_result.pose_landmarks:
             try:
                 p = detection_result.pose_landmarks[0] 
                 sh_cy = (p[11].y + p[12].y) / 2
                 hip_y = min(p[23].y, p[24].y)
                 chest_y = sh_cy + ((hip_y - sh_cy) * 0.25)
-                roi_w = int(abs(p[11].x - p[12].x) * w * 0.8)
-                roi_h = int(h * 0.15)
-                roi_x = int(((p[11].x + p[12].x)/2 * w) - (roi_w // 2))
-                roi_y = int(chest_y * h - (roi_h // 2))
+                tw, th = int(abs(p[11].x - p[12].x) * w * 0.9), int(h * 0.18)
+                tx, ty = int(((p[11].x + p[12].x)/2 * w) - (tw // 2)), int(chest_y * h - (th // 2))
+                target_roi = [tx, ty, tw, th]
             except: pass
 
-        roi_x, roi_y = max(0, roi_x), max(0, roi_y)
-        roi_w, roi_h = max(10, min(roi_w, w - roi_x - 5)), max(10, min(roi_h, h - roi_y - 5))
-        cv2.rectangle(frame, (roi_x, roi_y), (roi_x + roi_w, roi_y + roi_h), (0, 255, 0), 2)
-        roi_gray = gray[roi_y:roi_y+roi_h, roi_x:roi_x+roi_w]
+        if smooth_roi is None: smooth_roi = target_roi
+        else: smooth_roi = [int(smooth_roi[i]*0.8 + target_roi[i]*0.2) for i in range(4)]
+
+        rx, ry, rw, rh = smooth_roi
+        rx, ry = max(0, rx), max(0, ry)
+        rw, rh = max(10, min(rw, w - rx - 5)), max(10, min(rh, h - ry - 5))
+        cv2.rectangle(frame, (rx, ry), (rx + rw, ry + rh), (0, 255, 0), 2)
+        roi_gray = gray[ry:ry+rh, rx:rx+rw]
 
         if prev_gray is not None:
-            prev_roi = prev_gray[roi_y:roi_y+roi_h, roi_x:roi_x+roi_w]
-            if prev_roi.shape == roi_gray.shape:
+            prev_roi = prev_gray[ry:ry+rh, rx:rx+rw]
+            if prev_roi.shape == roi_gray.shape and prev_roi.size > 0:
                 flow = cv2.calcOpticalFlowFarneback(prev_roi, roi_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
-                motion_val = (np.mean(flow[..., 1]) * 3500) # Increased sensitivity
+                # SENSITIVITY BOOST
+                motion_val = (np.mean(flow[..., 1]) * 5000) 
                 
-                smoothed_val = np.mean(movement_history[-8:] + [motion_val]) if len(movement_history) > 8 else motion_val
-                movement_history.append(smoothed_val)
-                session_data.append(smoothed_val)
+                # Light smoothing
+                raw_smoothed = np.mean(movement_history[-8:] + [motion_val]) if len(movement_history) > 8 else motion_val
+                
+                if len(movement_history) > 60:
+                    local_mean = np.mean(movement_history[-60:])
+                    centered_val = raw_smoothed - local_mean
+                    
+                    # --- THE HARD DEAD-ZONE GATE ---
+                    # If signal is weak, force it to 0. If strong, let it through.
+                    if abs(centered_val) < dead_zone_gap:
+                        final_signal = 0
+                    else:
+                        final_signal = centered_val
+                else:
+                    final_signal = 0
+
+                movement_history.append(raw_smoothed)
+                session_data.append(final_signal) # Store the 'Cleaned' signal
                 if len(movement_history) > 600: movement_history.pop(0)
 
-                # --- INTELLIGENT DETECTION LOGIC ---
-                if len(movement_history) > 60:
-                    is_calibrated = True
-                    # 1. Center the signal
-                    window = movement_history[-60:]
-                    local_mean = np.mean(window)
-                    centered_val = smoothed_val - local_mean
-                    
-                    # 2. Check Peak-to-Peak Energy (SNR Guard)
-                    # This filters out the jitters you saw in the last graph
-                    p2p_range = max(window) - min(window)
-                    
-                    if p2p_range < 0.25: # Jitter threshold
-                        bpm = 0
-                        # Visual Flatline for Demo
-                        movement_history[-1] = local_mean 
-                        if (time.time() - apnea_timer > 10):
-                            status = "CRITICAL: APNEA"
-                        else:
-                            status = "STABLE / NO BREATH"
-                    else:
-                        # 3. Valid Rhythm Crossing
-                        if centered_val < 0 and going_up:
-                            curr_t = time.time()
-                            diff = curr_t - last_peak_time
-                            if 1.0 < diff < 5.5: # 11-60 BPM range
-                                bpm = 60 / diff
-                                bpm_history.append(bpm)
-                                last_peak_time, apnea_timer = curr_t, curr_t
-                                status = "NORMAL"
-                                try: requests.post(BACKEND_URL, json={"respiratoryRate": int(bpm), "status": status}, timeout=0.01)
-                                except: pass
-                            going_up = False
-                        elif centered_val > 0:
-                            going_up = True
+                # 2. BPM & APNEA LOGIC
+                if final_signal == 0:
+                    bpm = 0
+                    status = "CRITICAL: APNEA" if (time.time() - apnea_timer > 10) else "STABLE"
+                else:
+                    # Rhythmic Peak Detection
+                    if final_signal < 0 and going_up:
+                        curr_t = time.time()
+                        diff = curr_t - last_peak_time
+                        if 1.0 < diff < 6.0:
+                            bpm = 60 / diff
+                            bpm_history.append(bpm)
+                            last_peak_time, apnea_timer = curr_t, curr_t
+                            status = "NORMAL"
+                            try: requests.post(BACKEND_URL, json={"respiratoryRate": int(bpm), "status": status}, timeout=0.5)
+                            except Exception as e: pass
+                        going_up = False
+                    elif final_signal > 0:
+                        going_up = True
 
-        if time.time() - apnea_timer > 10 and is_calibrated:
-            status = "CRITICAL: APNEA"; bpm = 0
+        if time.time() - apnea_timer > 10: status = "CRITICAL: APNEA"; bpm = 0
 
         # UI
         wave_display.fill(0)
-        cv2.line(wave_display, (0, 100), (600, 100), (50, 50, 50), 1)
-        if len(movement_history) > 2:
-            m_baseline = np.mean(movement_history[-60:])
-            pts = [(i, int(100 - ((v - m_baseline) * 20))) for i, v in enumerate(movement_history[-600:])]
-            for i in range(len(pts) - 1):
-                cv2.line(wave_display, pts[i], pts[i+1], (0, 255, 255), 1)
+        # Visual Wall Markers (Red)
+        cv2.line(wave_display, (0, 150 - int(dead_zone_gap*40)), (600, 150 - int(dead_zone_gap*40)), (0, 0, 180), 1)
+        cv2.line(wave_display, (0, 150 + int(dead_zone_gap*40)), (600, 150 + int(dead_zone_gap*40)), (0, 0, 180), 1)
+        
+        if len(session_data) > 2:
+            # Huge Scale: * 60
+            pts = [(i, int(150 - (v * 60))) for i, v in enumerate(session_data[-600:])]
+            for i in range(len(pts)-1): cv2.line(wave_display, pts[i], pts[i+1], (0, 255, 255), 2, cv2.LINE_AA)
 
         prev_gray = gray.copy()
         color = (0, 255, 0) if status == "NORMAL" else (0, 0, 255)
-        cv2.putText(frame, f"RR: {int(bpm)} BPM | {status}", (20, 50), cv2.FONT_HERSHEY_DUPLEX, 1.0, color, 2)
-        cv2.imshow('NEONATAL MONITOR', frame); cv2.imshow('SIGNAL', wave_display)
+        cv2.putText(frame, f"RR: {int(bpm)} BPM | {status}", (20, 50), cv2.FONT_HERSHEY_DUPLEX, 1.1, color, 2)
+        
+        with lock:
+            global_frame = frame.copy()
+            global_wave = wave_display.copy()
+
+        cv2.imshow('NICU MONITOR', frame)
+        cv2.imshow('SIGNAL', wave_display)
         if cv2.waitKey(1) & 0xFF == ord('q'): break
 
-except Exception: pass
+except Exception as e:
+    import traceback
+    traceback.print_exc()
 finally:
     cap.release(); cv2.destroyAllWindows()
-    avg_rr = int(np.mean(bpm_history)) if bpm_history else 0
-    final_status = "CRITICAL: APNEA DETECTED" if status == "CRITICAL: APNEA" else "STABLE"
-    
     if len(session_data) > 50:
         plt.figure(figsize=(10, 5)); plt.style.use('dark_background')
         plt.plot(session_data, color='cyan')
-        plt.axhline(y=np.mean(session_data), color='red', linestyle='--', label="Adaptive Baseline")
-        plt.title(f"Clinical Report | Avg RR: {avg_rr} BPM | Status: {final_status}", color='yellow')
-        plt.legend(); plt.show()
+        plt.title(f"Clinical Report | Avg RR: {int(np.mean(bpm_history)) if bpm_history else 0} BPM", color='yellow')
+        plt.show()

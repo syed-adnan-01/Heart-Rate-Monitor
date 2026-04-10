@@ -26,12 +26,6 @@ app.post('/api/vitals', async (req, res) => {
     try {
         const { respiratoryRate, status } = req.body;
 
-        const newRecord = await Vitals.create({
-            respiratoryRate,
-            status,
-            patientId: "NEO-001"
-        });
-
         io.emit('vitals_update', {
             respiratoryRate,
             status,
@@ -39,10 +33,24 @@ app.post('/api/vitals', async (req, res) => {
         });
 
         console.log(`📡 AI Data Sync: ${respiratoryRate} BPM | Status: ${status}`);
+        
+        // Return immediately so the sensor is not blocked
         res.status(200).json({ message: "Vitals received and broadcasted" });
+
+        // Background save
+        Vitals.create({
+            respiratoryRate,
+            status,
+            patientId: "NEO-001"
+        }).catch(dbErr => {
+            console.error("MongoDB Save Error (non-blocking):", dbErr.message);
+        });
     } catch (err) {
         console.error("Internal Server Error:", err);
-        res.status(500).json({ error: err.message });
+        // Only trigger 500 if there's a synchronous error before the response
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 
