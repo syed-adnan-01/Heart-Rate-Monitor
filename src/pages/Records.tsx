@@ -2,10 +2,23 @@ import React, { useState } from 'react';
 import { Bookmark, FileText, Download, Share2, Search, Filter, Calendar, Clock, User, ChevronRight, ChevronDown } from 'lucide-react';
 import { type PatientRecord } from '../App';
 
-export const RecordsPage = ({ selectedDate, records }: { selectedDate: string, records: PatientRecord[] }) => {
+export const RecordsPage = ({ selectedDate, records, onRecordRead }: { selectedDate: string, records: PatientRecord[], onRecordRead: (id: string | number) => void }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Records');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [expandedRecordId, setExpandedRecordId] = useState<string | number | null>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowFilterDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleDownload = (record: any) => {
     const textBlob = new Blob([record.content], { type: 'text/plain' });
@@ -47,7 +60,12 @@ export const RecordsPage = ({ selectedDate, records }: { selectedDate: string, r
     else if (selectedCategory === 'Nursing Notes') matchesCategory = record.type === 'Note';
     else if (selectedCategory === 'AI Analysis') matchesCategory = record.type === 'Data';
 
-    return matchesDate && matchesSearch && matchesCategory;
+    let matchesStatus = true;
+    if (statusFilter === 'New') matchesStatus = record.status === 'New';
+    else if (statusFilter === 'Unread') matchesStatus = record.status === 'Unread';
+    else if (statusFilter === 'Read') matchesStatus = record.status === 'Read';
+
+    return matchesDate && matchesSearch && matchesCategory && matchesStatus;
   });
 
   return (
@@ -68,9 +86,39 @@ export const RecordsPage = ({ selectedDate, records }: { selectedDate: string, r
               className="pl-10 pr-4 py-2 bg-slate-800/50 border border-white/5 rounded-full text-xs focus:outline-none focus:border-cyan-500/50 transition-colors w-64"
             />
           </div>
-          <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 transition-colors">
-            <Filter className="w-4 h-4" />
-          </button>
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className={cn(
+                "p-2 rounded-full transition-all duration-300",
+                statusFilter !== 'All Status' ? "bg-cyan-500 text-black" : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+              )}
+            >
+              <Filter className="w-4 h-4" />
+            </button>
+            
+            {showFilterDropdown && (
+              <div className="absolute right-0 mt-3 w-48 bg-[#111418] border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div className="p-2 space-y-1">
+                  {['All Status', 'New', 'Unread', 'Read'].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(status);
+                        setShowFilterDropdown(false);
+                      }}
+                      className={cn(
+                        "w-full text-left px-4 py-2.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-colors",
+                        statusFilter === status ? "bg-cyan-500/10 text-cyan-400" : "text-slate-400 hover:bg-white/5 hover:text-white"
+                      )}
+                    >
+                      {status === 'All Status' ? 'All Records' : `${status} Reports`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -83,12 +131,12 @@ export const RecordsPage = ({ selectedDate, records }: { selectedDate: string, r
               Categories
             </h3>
             <div className="space-y-2">
-              <CategoryItem label="All Records" count={records.length} active={selectedCategory === 'All Records'} onClick={() => setSelectedCategory('All Records')} />
-              <CategoryItem label="Clinical Reports" count={records.filter(r => r.type === 'Report').length} active={selectedCategory === 'Clinical Reports'} onClick={() => setSelectedCategory('Clinical Reports')} />
-              <CategoryItem label="Lab Results" count={records.filter(r => r.type === 'Lab').length} active={selectedCategory === 'Lab Results'} onClick={() => setSelectedCategory('Lab Results')} />
-              <CategoryItem label="Imaging" count={records.filter(r => r.type === 'Imaging').length} active={selectedCategory === 'Imaging'} onClick={() => setSelectedCategory('Imaging')} />
-              <CategoryItem label="Nursing Notes" count={records.filter(r => r.type === 'Note').length} active={selectedCategory === 'Nursing Notes'} onClick={() => setSelectedCategory('Nursing Notes')} />
-              <CategoryItem label="AI Analysis" count={records.filter(r => r.type === 'Data').length} active={selectedCategory === 'AI Analysis'} onClick={() => setSelectedCategory('AI Analysis')} />
+              <CategoryItem label="All Records" count={records.filter(r => r.date === selectedDate).length} active={selectedCategory === 'All Records'} onClick={() => setSelectedCategory('All Records')} />
+              <CategoryItem label="Clinical Reports" count={records.filter(r => r.date === selectedDate && r.type === 'Report').length} active={selectedCategory === 'Clinical Reports'} onClick={() => setSelectedCategory('Clinical Reports')} />
+              <CategoryItem label="Lab Results" count={records.filter(r => r.date === selectedDate && r.type === 'Lab').length} active={selectedCategory === 'Lab Results'} onClick={() => setSelectedCategory('Lab Results')} />
+              <CategoryItem label="Imaging" count={records.filter(r => r.date === selectedDate && r.type === 'Imaging').length} active={selectedCategory === 'Imaging'} onClick={() => setSelectedCategory('Imaging')} />
+              <CategoryItem label="Nursing Notes" count={records.filter(r => r.date === selectedDate && r.type === 'Note').length} active={selectedCategory === 'Nursing Notes'} onClick={() => setSelectedCategory('Nursing Notes')} />
+              <CategoryItem label="AI Analysis" count={records.filter(r => r.date === selectedDate && r.type === 'Data').length} active={selectedCategory === 'AI Analysis'} onClick={() => setSelectedCategory('AI Analysis')} />
             </div>
           </div>
 
@@ -133,14 +181,30 @@ export const RecordsPage = ({ selectedDate, records }: { selectedDate: string, r
                   <div key={record.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
                     <div 
                       className="p-6 flex items-center justify-between cursor-pointer"
-                      onClick={() => setExpandedRecordId(expandedRecordId === record.id ? null : record.id)}
+                      onClick={() => {
+                        const newId = expandedRecordId === record.id ? null : record.id;
+                        setExpandedRecordId(newId);
+                        if (newId !== null && record.status !== 'Read') {
+                          onRecordRead(record.id);
+                        }
+                      }}
                     >
                       <div className="flex items-center gap-6">
                         <div className="w-12 h-12 bg-slate-800/50 rounded-2xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
                           <FileText className="w-6 h-6" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-white">{record.title}</h4>
+                          <h4 className="text-sm font-bold text-white flex items-center gap-3">
+                            {record.title}
+                            <span className={cn(
+                              "text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest font-black",
+                              record.status === 'New' ? "bg-orange-500 text-black" :
+                              record.status === 'Unread' ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" :
+                              "bg-slate-800 text-slate-500"
+                            )}>
+                              {record.status}
+                            </span>
+                          </h4>
                           <div className="flex items-center gap-4 text-[10px] text-slate-500">
                             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {record.date}</span>
                             <span className="flex items-center gap-1"><User className="w-3 h-3" /> {record.doctor}</span>

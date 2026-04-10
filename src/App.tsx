@@ -38,6 +38,7 @@ export interface PatientRecord {
   doctor: string;
   size: string;
   content: string;
+  status: 'New' | 'Read' | 'Unread';
 }
 
 const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
@@ -48,7 +49,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Report', 
     doctor: 'Dr. Dhoni', 
     size: '1.2 MB', 
-    content: '# Admission Summary\n\n**Patient:** Unit 04\n**Date:** 2026-03-28\n\nPatient admitted for observation. Initial vitals stable. No immediate signs of respiratory distress. Monitored for continuous SpO2 and Heart Rate.' 
+    content: '# Admission Summary\n\n**Patient:** Unit 04\n**Date:** 2026-03-28\n\nPatient admitted for observation. Initial vitals stable. No immediate signs of respiratory distress. Monitored for continuous SpO2 and Heart Rate.',
+    status: 'Read'
   },
   { 
     id: 2, 
@@ -57,7 +59,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Note', 
     doctor: 'Nurse Priya', 
     size: '450 KB', 
-    content: '# Clinical Note - April 10 (Today)\n\nPatient had a stable morning. Feeding protocol followed. No apneic events observed. Temperature stable at 36.8°C. Increased activity noted during nursing care.' 
+    content: '# Clinical Note - April 10 (Today)\n\nPatient had a stable morning. Feeding protocol followed. No apneic events observed. Temperature stable at 36.8°C. Increased activity noted during nursing care.',
+    status: 'New'
   },
   { 
     id: 3, 
@@ -66,7 +69,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Data', 
     doctor: 'NeoVision AI', 
     size: '2.8 MB', 
-    content: '# AI Respiratory Trend Analysis\n\nReal-time assessment of respiratory patterns. Patient shows nominal rhythm. Slight tachypnea during feeding earlier today, quickly resolving to baseline of 42 BPM.' 
+    content: '# AI Respiratory Trend Analysis\n\nReal-time assessment of respiratory patterns. Patient shows nominal rhythm. Slight tachypnea during feeding earlier today, quickly resolving to baseline of 42 BPM.',
+    status: 'Unread'
   },
   { 
     id: 4, 
@@ -75,7 +79,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Lab', 
     doctor: 'Lab Services', 
     size: '850 KB', 
-    content: '# Blood Gas Lab Results (Latest)\n\npH: 7.38\nPaCO2: 38 mmHg\nPaO2: 92 mmHg\nHCO3: 24 mEq/L\n\nInterpretation: Perfectly normal neonatal acid-base balance.' 
+    content: '# Blood Gas Lab Results (Latest)\n\npH: 7.38\nPaCO2: 38 mmHg\nPaO2: 92 mmHg\nHCO3: 24 mEq/L\n\nInterpretation: Perfectly normal neonatal acid-base balance.',
+    status: 'New'
   },
   { 
     id: 5, 
@@ -84,7 +89,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Report', 
     doctor: 'Dr. Aditya Verma', 
     size: '1.5 MB', 
-    content: '# Neurological Assessment\n\nAlert and responsive. Normal reflexes and tone for gestational age. Pupils equal and reactive.' 
+    content: '# Neurological Assessment\n\nAlert and responsive. Normal reflexes and tone for gestational age. Pupils equal and reactive.',
+    status: 'Read'
   },
   { 
     id: 6, 
@@ -93,7 +99,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Protocol', 
     doctor: 'Dr. Dhoni', 
     size: '320 KB', 
-    content: '# Feeding Protocol Update\n\nMove to Phase 2 enteral feeding: 25ml every 3 hours. Monitor tolerance, check residuals. Hold if residuals > 40%.' 
+    content: '# Feeding Protocol Update\n\nMove to Phase 2 enteral feeding: 25ml every 3 hours. Monitor tolerance, check residuals. Hold if residuals > 40%.',
+    status: 'Read'
   },
   { 
     id: 7, 
@@ -102,7 +109,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Imaging', 
     doctor: 'Radiology', 
     size: '12.4 MB', 
-    content: '# Imaging: Chest X-Ray\n\nClear lung fields bilaterally. Cardiac silhouette normal. No pleural effusion. Significant improvement since admission.' 
+    content: '# Imaging: Chest X-Ray\n\nClear lung fields bilaterally. Cardiac silhouette normal. No pleural effusion. Significant improvement since admission.',
+    status: 'Read'
   },
   { 
     id: 8, 
@@ -111,7 +119,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Lab', 
     doctor: 'Lab Services', 
     size: '600 KB', 
-    content: '# Lab: Complete Blood Count\n\nWBC: 9.2 x10^3/uL\nRBC: 4.5 x10^6/uL\nHgb: 15.2 g/dL\nPlt: 280 x10^3/uL\n\nAll parameters within reference neonatal limits.' 
+    content: '# Lab: Complete Blood Count\n\nWBC: 9.2 x10^3/uL\nRBC: 4.5 x10^6/uL\nHgb: 15.2 g/dL\nPlt: 280 x10^3/uL\n\nAll parameters within reference neonatal limits.',
+    status: 'Read'
   },
   { 
     id: 9, 
@@ -120,7 +129,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Note', 
     doctor: 'Nurse Priya', 
     size: '310 KB', 
-    content: '# Night Shift Observation\n\nQuiet night. Sleep cycle undisturbed. Respiratory rate ranged from 38-44 BPM.' 
+    content: '# Night Shift Observation\n\nQuiet night. Sleep cycle undisturbed. Respiratory rate ranged from 38-44 BPM.',
+    status: 'Read'
   },
   { 
     id: 10, 
@@ -129,7 +139,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Report', 
     doctor: 'Dr. Rajesh Iyer', 
     size: '4.2 MB', 
-    content: '# Echocardiogram Report\n\nNormal biventricular function. No evidence of PDA or septal defects. Ejection fraction estimated at 65%.' 
+    content: '# Echocardiogram Report\n\nNormal biventricular function. No evidence of PDA or septal defects. Ejection fraction estimated at 65%.',
+    status: 'Read'
   },
   { 
     id: 11, 
@@ -138,7 +149,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Data', 
     doctor: 'NeoVision AI', 
     size: '1.8 MB', 
-    content: '# AI Data: Heart Rate Variability\n\nHRV analysis indicates robust autonomic regulation for gestational age.' 
+    content: '# AI Data: Heart Rate Variability\n\nHRV analysis indicates robust autonomic regulation for gestational age.',
+    status: 'Read'
   },
   { 
     id: 12, 
@@ -147,7 +159,8 @@ const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
     type: 'Note', 
     doctor: 'Nurse Priya', 
     size: '420 KB', 
-    content: '# Clinical Note - April 9\n\nStable growth progress. Weight up 20g today. Respiratory support minimal.' 
+    content: '# Clinical Note - April 9\n\nStable growth progress. Weight up 20g today. Respiratory support minimal.',
+    status: 'Read'
   },
 ];
 
@@ -176,6 +189,12 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [records, setRecords] = useState<PatientRecord[]>(INITIAL_PATIENT_RECORDS);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const markRecordAsRead = (id: string | number) => {
+    setRecords(prev => prev.map(record => 
+      record.id === id ? { ...record, status: 'Read' } : record
+    ));
+  };
   const dateInputRef = useRef<HTMLInputElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   
@@ -729,7 +748,7 @@ export default function App() {
           ) : activeTab === 'Clinical' ? (
             <ClinicalPage />
           ) : (
-            <RecordsPage selectedDate={selectedDate} records={records} />
+            <RecordsPage selectedDate={selectedDate} records={records} onRecordRead={markRecordAsRead} />
           )}
         </AnimatePresence>
       </div>
