@@ -28,8 +28,128 @@ import { SlideDeck } from './components/SlideDeck';
 import { cn } from './lib/utils';
 import { HealthPage } from './pages/Health';
 import { ClinicalPage } from './pages/Clinical';
-import { WidgetsPage } from './pages/Widgets';
 import { RecordsPage } from './pages/Records';
+
+export interface PatientRecord {
+  id: number | string;
+  title: string;
+  date: string;
+  type: 'Report' | 'Note' | 'Data' | 'Lab' | 'Imaging' | 'Protocol';
+  doctor: string;
+  size: string;
+  content: string;
+}
+
+const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
+  { 
+    id: 1, 
+    title: 'Admission Summary', 
+    date: '2026-03-28', 
+    type: 'Report', 
+    doctor: 'Dr. Dhoni', 
+    size: '1.2 MB', 
+    content: '# Admission Summary\n\n**Patient:** Unit 04\n**Date:** 2026-03-28\n\nPatient admitted for observation. Initial vitals stable. No immediate signs of respiratory distress. Monitored for continuous SpO2 and Heart Rate.' 
+  },
+  { 
+    id: 2, 
+    title: 'Daily Clinical Note - Apr 10', 
+    date: '2026-04-10', 
+    type: 'Note', 
+    doctor: 'Nurse Priya', 
+    size: '450 KB', 
+    content: '# Clinical Note - April 10 (Today)\n\nPatient had a stable morning. Feeding protocol followed. No apneic events observed. Temperature stable at 36.8°C. Increased activity noted during nursing care.' 
+  },
+  { 
+    id: 3, 
+    title: 'Respiratory Trend Analysis', 
+    date: '2026-04-10', 
+    type: 'Data', 
+    doctor: 'NeoVision AI', 
+    size: '2.8 MB', 
+    content: '# AI Respiratory Trend Analysis\n\nReal-time assessment of respiratory patterns. Patient shows nominal rhythm. Slight tachypnea during feeding earlier today, quickly resolving to baseline of 42 BPM.' 
+  },
+  { 
+    id: 4, 
+    title: 'Blood Gas Results', 
+    date: '2026-04-10', 
+    type: 'Lab', 
+    doctor: 'Lab Services', 
+    size: '850 KB', 
+    content: '# Blood Gas Lab Results (Latest)\n\npH: 7.38\nPaCO2: 38 mmHg\nPaO2: 92 mmHg\nHCO3: 24 mEq/L\n\nInterpretation: Perfectly normal neonatal acid-base balance.' 
+  },
+  { 
+    id: 5, 
+    title: 'Neurological Assessment', 
+    date: '2026-03-30', 
+    type: 'Report', 
+    doctor: 'Dr. Aditya Verma', 
+    size: '1.5 MB', 
+    content: '# Neurological Assessment\n\nAlert and responsive. Normal reflexes and tone for gestational age. Pupils equal and reactive.' 
+  },
+  { 
+    id: 6, 
+    title: 'Feeding Protocol - Phase 2', 
+    date: '2026-04-09', 
+    type: 'Protocol', 
+    doctor: 'Dr. Dhoni', 
+    size: '320 KB', 
+    content: '# Feeding Protocol Update\n\nMove to Phase 2 enteral feeding: 25ml every 3 hours. Monitor tolerance, check residuals. Hold if residuals > 40%.' 
+  },
+  { 
+    id: 7, 
+    title: 'Chest X-Ray - Follow-up', 
+    date: '2026-04-05', 
+    type: 'Imaging', 
+    doctor: 'Radiology', 
+    size: '12.4 MB', 
+    content: '# Imaging: Chest X-Ray\n\nClear lung fields bilaterally. Cardiac silhouette normal. No pleural effusion. Significant improvement since admission.' 
+  },
+  { 
+    id: 8, 
+    title: 'Complete Blood Count', 
+    date: '2026-04-08', 
+    type: 'Lab', 
+    doctor: 'Lab Services', 
+    size: '600 KB', 
+    content: '# Lab: Complete Blood Count\n\nWBC: 9.2 x10^3/uL\nRBC: 4.5 x10^6/uL\nHgb: 15.2 g/dL\nPlt: 280 x10^3/uL\n\nAll parameters within reference neonatal limits.' 
+  },
+  { 
+    id: 9, 
+    title: 'Night Shift Observation', 
+    date: '2026-04-09', 
+    type: 'Note', 
+    doctor: 'Nurse Priya', 
+    size: '310 KB', 
+    content: '# Night Shift Observation\n\nQuiet night. Sleep cycle undisturbed. Respiratory rate ranged from 38-44 BPM.' 
+  },
+  { 
+    id: 10, 
+    title: 'Echocardiogram Report', 
+    date: '2026-03-31', 
+    type: 'Report', 
+    doctor: 'Dr. Rajesh Iyer', 
+    size: '4.2 MB', 
+    content: '# Echocardiogram Report\n\nNormal biventricular function. No evidence of PDA or septal defects. Ejection fraction estimated at 65%.' 
+  },
+  { 
+    id: 11, 
+    title: 'Heart Rate Variability', 
+    date: '2026-04-08', 
+    type: 'Data', 
+    doctor: 'NeoVision AI', 
+    size: '1.8 MB', 
+    content: '# AI Data: Heart Rate Variability\n\nHRV analysis indicates robust autonomic regulation for gestational age.' 
+  },
+  { 
+    id: 12, 
+    title: 'Daily Clinical Note - Apr 09', 
+    date: '2026-04-09', 
+    type: 'Note', 
+    doctor: 'Nurse Priya', 
+    size: '420 KB', 
+    content: '# Clinical Note - April 9\n\nStable growth progress. Weight up 20g today. Respiratory support minimal.' 
+  },
+];
 
 const WEEKLY_STABILITY_DATA = [
   { day: 'Sun', value: 82, color: 'bg-cyan-400/40' },
@@ -54,6 +174,7 @@ export default function App() {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [records, setRecords] = useState<PatientRecord[]>(INITIAL_PATIENT_RECORDS);
   const [showNotifications, setShowNotifications] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -267,7 +388,6 @@ export default function App() {
               <NavItem icon={Home} label="Home" />
               <NavItem icon={Activity} label="Health" />
               <NavItem icon={Stethoscope} label="Clinical" />
-              <NavItem icon={LayoutGrid} label="Widgets" />
               <NavItem icon={Bookmark} label="Records" />
             </nav>
           </div>
@@ -279,7 +399,7 @@ export default function App() {
                 <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Neonatologist</p>
               </div>
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10">
-                <img src="https://i.pravatar.cc/150?u=dhoni" alt="User" className="w-full h-full object-cover" />
+                <img src="/doc_avatar.png" alt="User" className="w-full h-full object-cover" />
               </div>
             </button>
             <div className="relative" ref={notificationRef}>
@@ -574,10 +694,10 @@ export default function App() {
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-2xl w-full mb-6">
                     <div className="w-10 h-10 rounded-full overflow-hidden">
-                      <img src="https://i.pravatar.cc/150?u=nurse" alt="Nurse" className="w-full h-full object-cover" />
+                      <img src="/nurse_avatar.png" alt="Nurse" className="w-full h-full object-cover" />
                     </div>
                     <div className="text-left">
-                      <p className="text-[10px] font-bold text-white">Nurse Sarah J.</p>
+                      <p className="text-[10px] font-bold text-white">Nurse Priya</p>
                       <p className="text-[8px] text-slate-500 uppercase tracking-widest">Primary Caregiver</p>
                     </div>
                   </div>
@@ -601,10 +721,8 @@ export default function App() {
             <HealthPage />
           ) : activeTab === 'Clinical' ? (
             <ClinicalPage />
-          ) : activeTab === 'Widgets' ? (
-            <WidgetsPage />
           ) : (
-            <RecordsPage selectedDate={selectedDate} />
+            <RecordsPage selectedDate={selectedDate} records={records} />
           )}
         </AnimatePresence>
       </div>
