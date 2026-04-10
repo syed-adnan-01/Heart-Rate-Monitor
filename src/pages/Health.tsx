@@ -12,7 +12,7 @@ const HEALTH_HISTORY = [
   { time: '23:59', hr: 124, rr: 42, spo2: 99 },
 ];
 
-export const HealthPage = ({ onGenerateAnalysis }: any) => {
+export const HealthPage = () => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-end">
@@ -22,12 +22,20 @@ export const HealthPage = ({ onGenerateAnalysis }: any) => {
         </div>
         <div className="flex gap-3">
           <button className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-xs font-bold transition-colors">Export PDF</button>
-          <button onClick={onGenerateAnalysis} className="px-6 py-2 bg-cyan-500 text-black rounded-full text-xs font-bold transition-colors">Update Assessment</button>
+          <button className="px-6 py-2 bg-cyan-500 text-black rounded-full text-xs font-bold transition-colors">Update Assessment</button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <HealthMetricCard 
+          icon={Heart} 
+          label="Avg Heart Rate" 
+          value="132" 
+          unit="BPM" 
+          trend="+2.4%" 
+          isPositive={false}
+          color="text-emerald-400"
+        />
         <HealthMetricCard 
           icon={Activity} 
           label="Avg Resp Rate" 
@@ -37,16 +45,6 @@ export const HealthPage = ({ onGenerateAnalysis }: any) => {
           isPositive={true}
           color="text-orange-400"
         />
-
-        <HealthMetricCard 
-          icon={Thermometer} 
-          label="Avg Temp" 
-          value="36.8" 
-          unit="°C" 
-          trend="Stable" 
-          isPositive={true}
-          color="text-amber-400"
-        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -54,7 +52,10 @@ export const HealthPage = ({ onGenerateAnalysis }: any) => {
           <div className="flex justify-between items-center mb-8">
             <h3 className="font-bold text-lg">24-Hour Physiological Trends</h3>
             <div className="flex gap-4">
-
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-cyan-400" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Heart Rate</span>
+              </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-400" />
                 <span className="text-[10px] font-bold text-slate-500 uppercase">Resp Rate</span>
@@ -62,10 +63,13 @@ export const HealthPage = ({ onGenerateAnalysis }: any) => {
             </div>
           </div>
           <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <AreaChart data={HEALTH_HISTORY}>
                 <defs>
-
+                  <linearGradient id="colorHr" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#22d3ee" stopOpacity={0}/>
+                  </linearGradient>
                   <linearGradient id="colorRr" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#fb923c" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#fb923c" stopOpacity={0}/>
@@ -78,7 +82,7 @@ export const HealthPage = ({ onGenerateAnalysis }: any) => {
                   contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                 />
-
+                <Area type="monotone" dataKey="hr" stroke="#22d3ee" strokeWidth={3} fillOpacity={1} fill="url(#colorHr)" />
                 <Area type="monotone" dataKey="rr" stroke="#fb923c" strokeWidth={3} fillOpacity={1} fill="url(#colorRr)" />
               </AreaChart>
             </ResponsiveContainer>
