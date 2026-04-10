@@ -79,3 +79,45 @@ body {
 .recharts-brush rect {
   stroke: #1e293b;
 }
+
+/* Professional Print Styling for Clinical Reports */
+@media print {
+  header, nav, .recharts-brush, button, .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+  }
+
+  .card-glass {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    margin-bottom: 2rem;
+    color: black !important;
+  }
+
+  h2, h3, h4, p, span {
+    color: black !important;
+  }
+
+  .text-slate-500, .text-slate-400 {
+    color: #64748b !important;
+  }
+
+  /* Force background colors for charts/metrics in PDF */
+  .bg-cyan-500\/10, .bg-emerald-500\/10, .bg-orange-500\/10 {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  canvas, svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}

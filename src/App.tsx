@@ -555,7 +555,14 @@ export default function App() {
                     </div>
                     <div className="flex gap-2">
                       <div className="bg-cyan-400/20 text-cyan-400 px-4 py-1 rounded-full text-[10px] font-bold">+65%</div>
-                      <div className="bg-slate-800 text-slate-400 px-4 py-1 rounded-full text-[10px] font-bold">LIVE</div>
+                      <div className={cn(
+                        "px-4 py-1 rounded-full text-[10px] font-bold transition-all duration-300",
+                        isCameraReady 
+                          ? "bg-red-500/20 text-red-500 border border-red-500/30 animate-pulse" 
+                          : "bg-slate-800 text-slate-400"
+                      )}>
+                        LIVE
+                      </div>
                     </div>
                   </div>
                   
