@@ -1,0 +1,7 @@
+{
+  "name": "NeoVision AI",
+  "description": "Non-contact respiratory monitor for newborns using AI-powered camera detection.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

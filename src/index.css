@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --radius-4xl: 2rem;
+  --radius-5xl: 2.5rem;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-[#08090a] text-slate-200 antialiased;
+}
+
+/* Reference-inspired Glassmorphism */
+.card-glass {
+  @apply bg-[#111418] border border-white/5 shadow-xl transition-all duration-300;
+}
+
+.card-glass:hover {
+  @apply border-white/10 bg-[#161a20] -translate-y-1 shadow-2xl shadow-cyan-500/5;
+}
+
+.pill-active {
+  @apply bg-cyan-500/20 text-cyan-400 border border-cyan-500/30;
+}
+
+/* Custom scrollbar for the alert log */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-800 rounded-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-700;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
+@keyframes ring {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(15deg); }
+  75% { transform: rotate(-15deg); }
+}
+.animate-ring {
+  animation: ring 0.2s ease-in-out infinite;
+}
+
+/* Recharts Brush Styling */
+.recharts-brush-slide {
+  fill: #22d3ee;
+  fill-opacity: 0.05;
+}
+
+.recharts-brush-traveller rect {
+  fill: #1e293b;
+  stroke: #22d3ee;
+  stroke-width: 1;
+}
+
+.recharts-brush-texts {
+  @apply font-mono text-[10px] fill-slate-500;
+}
+
+.recharts-brush rect {
+  stroke: #1e293b;
+}
