@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -15,7 +16,7 @@ const io = new Server(server, {
 });
 
 
-const mongoURI = "mongodb+srv://neerajay04:neodata@neonatal-database.g3ogjcn.mongodb.net/neonatal_db?retryWrites=true&w=majority&appName=neonatal-database";
+const mongoURI = process.env.MONGODB_URI;
 
 mongoose.connect(mongoURI)
     .then(() => console.log('✅ MongoDB Atlas Connected Successfully!'))

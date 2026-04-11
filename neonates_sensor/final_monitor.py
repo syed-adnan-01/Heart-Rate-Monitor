@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 import threading
 from flask import Flask, Response
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Load all environment variables from the root .env file
+load_dotenv()
 
 # --- FLASK M-JPEG SERVER SETUP ---
 app = Flask(__name__)
@@ -52,7 +56,7 @@ def run_flask():
 # 1. SETUP
 script_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(script_dir, 'pose_landmarker_heavy.task')
-BACKEND_URL = "http://localhost:5000/api/vitals"
+BACKEND_URL = os.getenv('PYTHON_API_POST_URL')
 
 base_options = python.BaseOptions(model_asset_path=model_path)
 options = vision.PoseLandmarkerOptions(base_options=base_options, running_mode=vision.RunningMode.VIDEO)
