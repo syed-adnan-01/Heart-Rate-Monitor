@@ -69,11 +69,13 @@ bpm, last_peak_time, apnea_timer = 0, time.time(), time.time()
 status = "STABILIZING"
 going_up = False
 
-# --- THE "DEAD-ZONE" SETTINGS ---
+# --- THE "SIGNAL" SETTINGS ---
 smooth_roi = None 
-roi_alpha = 0.2     # Fast tracking
-# This is your 'Narrow Gap'. Any jitter between -0.2 and 0.2 is killed to 0.
-dead_zone_gap = 100 
+roi_alpha = 0.2     
+dead_zone_gap = 30  # Higher noise floor
+signal_energy = 0
+peak_armed = False 
+warmup_limit = 100  # Longer warmup for better averages
 
 print("--- HARD-GATE MONITOR: JITTER-KILLER + FLASK MJPEG OVER PORT 5001 ACTIVE ---")
 
@@ -135,63 +137,68 @@ try:
                 # SENSITIVITY BOOST
                 motion_val = (np.mean(flow[..., 1]) * 5000) 
                 
-                # Light smoothing
-                raw_smoothed = np.mean(movement_history[-8:] + [motion_val]) if len(movement_history) > 8 else motion_val
+                # 1. ENHANCED LOW-PASS FILTER (15 Frame window)
+                raw_smoothed = np.mean(movement_history[-15:] + [motion_val]) if len(movement_history) > 15 else motion_val
                 
-                if len(movement_history) > 60:
-                    local_mean = np.mean(movement_history[-60:])
+                if len(movement_history) > warmup_limit:
+                    local_mean = np.mean(movement_history[-warmup_limit:])
                     centered_val = raw_smoothed - local_mean
+                    # Energy = Moving Standard Deviation (Robust to noise)
+                    signal_energy = np.std(movement_history[-20:]) 
                     
-                    # --- THE HARD DEAD-ZONE GATE ---
                     if abs(centered_val) < dead_zone_gap:
                         final_signal = 0
                     else:
                         final_signal = centered_val
                 else:
                     final_signal = 0
+                    signal_energy = 0
 
                 movement_history.append(raw_smoothed)
-                session_data.append(final_signal) # Store the 'Cleaned' signal
+                session_data.append(final_signal) 
                 if len(movement_history) > 600: movement_history.pop(0)
 
-                # 2. BPM & APNEA LOGIC
-                if final_signal == 0:
-                    # Only trigger apnea if we're past the warmup period
-                    if len(movement_history) > 60 and (time.time() - apnea_timer > 10):
+                # 2. BPM & APNEA LOGIC (Energy Based)
+                # If energy is below threshold, the chest is not moving rhythmically
+                if signal_energy < 75: 
+                    if len(movement_history) > warmup_limit and (time.time() - apnea_timer > 10):
                         status = "CRITICAL: APNEA"
                         bpm = 0
-                    elif len(movement_history) <= 60:
+                    elif len(movement_history) <= warmup_limit:
                         status = "STABILIZING"
                     else:
-                        status = "STABLE"
+                        # Low movement but not yet apnea
+                        status = "LOW MOVEMENT"
                 else:
-                    # Any non-zero motion resets the apnea timer
+                    # Activity detected, reset apnea timer
                     apnea_timer = time.time()
-                    # Rhythmic Peak Detection
-                    if final_signal < 0 and going_up:
+                    
+                    # Robust Peak Detection (Hysteresis)
+                    if final_signal > 100: # Positive swing
+                        peak_armed = True
+                    elif final_signal < -100 and peak_armed: # Negative swing
                         curr_t = time.time()
                         diff = curr_t - last_peak_time
-                        last_peak_time = curr_t  # Always update reference point
-                        if 1.0 < diff < 6.0:
+                        last_peak_time = curr_t
+                        if 1.2 < diff < 6.0:
                             bpm = 60 / diff
                             bpm_history.append(bpm)
                             status = "NORMAL"
-                            print(f"[PEAK] ** REGISTERED ** bpm={int(bpm)} diff={diff:.2f}s", flush=True)
-                        going_up = False
-                    elif final_signal > 0:
-                        going_up = True
+                            print(f"[PEAK] ** REGISTERED ** bpm={int(bpm)} diff={diff:.2f}s energy={signal_energy:.1f}", flush=True)
+                        peak_armed = False # Must swing positive again before next peak
 
-        # Only check standalone apnea if past warmup
-        if len(movement_history) > 60 and time.time() - apnea_timer > 10:
-            status = "CRITICAL: APNEA"; bpm = 0
+        # Standalone Apnea Monitor
+        if len(movement_history) > warmup_limit and time.time() - apnea_timer > 10:
+            status = "CRITICAL: APNEA"
+            bpm = 0
 
         # LIVE SYNC: Post to backend every 1.0 seconds
         curr_time = time.time()
         if curr_time - last_post_time > 1.0:
             last_post_time = curr_time
-            # Debug: show what the signal processor sees
+            # Debug: show signal quality
             sig_val = session_data[-1] if session_data else 0
-            print(f"[HEARTBEAT] bpm={int(bpm)} status={status} signal={sig_val:.4f} history={len(movement_history)}", flush=True)
+            print(f"[HEARTBEAT] bpm={int(bpm)} status={status} energy={signal_energy:.1f} history={len(movement_history)}", flush=True)
             send_data_async({"respiratoryRate": int(bpm), "status": status})
 
         # UI
