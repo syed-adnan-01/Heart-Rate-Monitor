@@ -33,6 +33,7 @@ import { cn } from './lib/utils';
 import { HealthPage } from './pages/Health';
 import { ClinicalPage } from './pages/Clinical';
 import { RecordsPage } from './pages/Records';
+import { io } from 'socket.io-client';
 
 export interface PatientRecord {
   id: number | string;
@@ -299,34 +300,35 @@ export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  // Initialize Socket.IO
+  useEffect(() => {
+    const socket = io('http://localhost:5000');
+
+    socket.on('connect', () => {
+      console.log('Connected to NeoVision Backend');
+    });
+
+    socket.on('vitals_update', (data: { respiratoryRate: number; status: string; timestamp: string }) => {
+      if (!isMonitoring) return;
+      
+      setRespiratoryRate(data.respiratoryRate);
+      
+      if (data.status === 'CRITICAL') {
+        addAlert('Warning', `Critical Respiratory Rate: ${data.respiratoryRate} BPM`, 'high');
+      } else if (data.status === 'NORMAL') {
+        isManuallySilenced.current = false;
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [isMonitoring]);
+
   useEffect(() => {
     if (!isMonitoring) return;
 
     const interval = setInterval(() => {
-      setRespiratoryRate(prev => {
-        let next;
-        const rand = Math.random();
-        
-        if (rand < 0.05) {
-          next = 0;
-        } else if (rand < 0.15) {
-          next = Math.floor(Math.random() * 20) + 65;
-        } else {
-          const change = Math.floor(Math.random() * 7) - 3;
-          next = Math.max(30, Math.min(60, prev === 0 ? 40 : prev + change));
-        }
-        
-        if (next > 60) {
-          addAlert('Tachypnea', `High respiratory rate: ${next} BPM`, 'high');
-        } else if (next === 0) {
-          addAlert('Warning', 'Respiratory movement stopped. Monitoring...', 'medium');
-        } else if (next >= 30 && next <= 60) {
-          isManuallySilenced.current = false;
-        }
-        
-        return next;
-      });
-
       setHeartRate(prev => {
         const change = Math.floor(Math.random() * 5) - 2;
         let next = prev + change;
@@ -787,7 +789,7 @@ export default function App() {
                   </div>
 
                   <div className="flex-1 min-h-[180px]">
-                    <BreathingGraph isActive={isMonitoring} />
+                    <BreathingGraph isActive={isMonitoring} respiratoryRate={respiratoryRate} />
                   </div>
                   
                   <div className="mt-8">

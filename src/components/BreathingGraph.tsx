@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { Pause, Play, RotateCcw } from 'lucide-react';
 
-export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
+export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: boolean, respiratoryRate?: number }) => {
   const [data, setData] = useState<{ time: number; value: number; ecg: number; label: string }[]>([]);
   const [tick, setTick] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -24,7 +24,8 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
     const interval = setInterval(() => {
       setTick((t) => t + 0.15);
       setData((prev) => {
-        const breathingValue = Math.sin(tick) * 0.3 + 0.4 + (Math.random() * 0.02);
+        const freqScale = Math.max(0.1, respiratoryRate / 40); // Base target is 40 BPM 
+        const breathingValue = Math.sin(tick * freqScale) * 0.3 + 0.4 + (Math.random() * 0.02);
         
         const ecgTick = tick * 5;
         const phase = ecgTick % (Math.PI * 2);
@@ -57,7 +58,7 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
     }, 50);
 
     return () => clearInterval(interval);
-  }, [isActive, isPaused, tick]);
+  }, [isActive, isPaused, tick, respiratoryRate]);
 
   const resetGraph = useCallback(() => {
     setData([]);
