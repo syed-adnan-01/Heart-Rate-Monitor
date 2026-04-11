@@ -313,9 +313,9 @@ export default function App() {
       
       setRespiratoryRate(data.respiratoryRate);
       
-      if (data.status === 'CRITICAL') {
-        addAlert('Warning', `Critical Respiratory Rate: ${data.respiratoryRate} BPM`, 'high');
-      } else if (data.status === 'NORMAL') {
+      if (data.status.includes('CRITICAL')) {
+        addAlert('Apnea', `CRITICAL Status: ${data.status} | ${data.respiratoryRate} BPM`, 'high');
+      } else if (data.status === 'NORMAL' || data.status.includes('STABLE')) {
         isManuallySilenced.current = false;
       }
     });
