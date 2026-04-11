@@ -198,7 +198,6 @@ export default function App() {
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [isAlarmActive, setIsAlarmActive] = useState(false);
 
-  // Web Audio Context for buzzer sound
   const audioContext = useRef<AudioContext | null>(null);
   const activeOscillator = useRef<OscillatorNode | null>(null);
   const activeGainNode = useRef<GainNode | null>(null);
@@ -241,7 +240,6 @@ export default function App() {
         ctx.resume();
       }
 
-      // Use Ref directly to avoid stale closures and overlapping oscillators
       if (isContinuous && (activeOscillator.current || isManuallySilenced.current)) return;
 
       const oscillator = ctx.createOscillator();
@@ -251,13 +249,12 @@ export default function App() {
       oscillator.frequency.setValueAtTime(660, ctx.currentTime);
 
       if (isContinuous) {
-        // Create a pulsing siren effect using an LFO
         const lfo = ctx.createOscillator();
         const lfoGain = ctx.createGain();
 
         lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(2, ctx.currentTime); // 2Hz pulse
-        lfoGain.gain.setValueAtTime(220, ctx.currentTime); // +/- 220Hz range
+        lfo.frequency.setValueAtTime(2, ctx.currentTime);
+        lfoGain.gain.setValueAtTime(220, ctx.currentTime);
 
         lfo.connect(lfoGain);
         lfoGain.connect(oscillator.frequency);
@@ -275,7 +272,6 @@ export default function App() {
         lfo.start();
         oscillator.start();
       } else {
-        // Short beep
         gainNode.gain.setValueAtTime(0, ctx.currentTime);
         gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.01);
         gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
@@ -303,39 +299,34 @@ export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Simulate RR and other vitals
   useEffect(() => {
     if (!isMonitoring) return;
 
     const interval = setInterval(() => {
-      // Respiratory Rate Simulation
       setRespiratoryRate(prev => {
         let next;
         const rand = Math.random();
         
-        if (rand < 0.05) { // 5% chance of apnea event
+        if (rand < 0.05) {
           next = 0;
-        } else if (rand < 0.15) { // 10% chance of tachypnea spike
+        } else if (rand < 0.15) {
           next = Math.floor(Math.random() * 20) + 65;
-        } else { // Normal range fluctuation
+        } else {
           const change = Math.floor(Math.random() * 7) - 3;
           next = Math.max(30, Math.min(60, prev === 0 ? 40 : prev + change));
         }
         
-        // Alert logic
         if (next > 60) {
           addAlert('Tachypnea', `High respiratory rate: ${next} BPM`, 'high');
         } else if (next === 0) {
           addAlert('Warning', 'Respiratory movement stopped. Monitoring...', 'medium');
         } else if (next >= 30 && next <= 60) {
-          // Normal range - reset silence flag if everything else is also likely normal
           isManuallySilenced.current = false;
         }
         
         return next;
       });
 
-      // Heart Rate Simulation (Normal: 120-160)
       setHeartRate(prev => {
         const change = Math.floor(Math.random() * 5) - 2;
         let next = prev + change;
@@ -344,11 +335,10 @@ export default function App() {
         return next;
       });
 
-      // SpO2 Simulation (Normal: 95-100)
       setSpo2(prev => {
         const rand = Math.random();
         let next;
-        if (rand < 0.05) { // 5% chance of desaturation
+        if (rand < 0.05) {
           next = Math.floor(Math.random() * 5) + 85;
           addAlert('Warning', `Low SpO2 detected: ${next}%`, 'medium');
         } else {
@@ -365,7 +355,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isMonitoring]);
 
-  // Close notifications and doctor info on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -381,7 +370,6 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showNotifications, showDoctorInfo]);
 
-  // Apnea Timer Logic
   useEffect(() => {
     if (!isMonitoring) {
       setApneaTimer(0);
@@ -466,7 +454,6 @@ export default function App() {
     addAlert('Warning', 'Monitoring session ended.', 'medium');
   };
 
-  // Robust callback ref to handle conditional rendering
   const videoPortalRef = (el: HTMLVideoElement | null) => {
     if (el && streamRef.current) {
       el.srcObject = streamRef.current;

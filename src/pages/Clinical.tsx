@@ -62,7 +62,7 @@ export const ClinicalPage = () => {
 
   const handleRequestLab = () => {
     setLabRequested(true);
-    setTimeout(() => setLabRequested(false), 3000); // Reset after 3s
+    setTimeout(() => setLabRequested(false), 3000);
   };
 
   const filteredProtocols = PROTOCOLS.filter(p => 

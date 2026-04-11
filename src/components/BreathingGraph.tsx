@@ -24,32 +24,25 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
     const interval = setInterval(() => {
       setTick((t) => t + 0.15);
       setData((prev) => {
-        // Breathing Wave (Sinusoidal)
         const breathingValue = Math.sin(tick) * 0.3 + 0.4 + (Math.random() * 0.02);
         
-        // ECG Wave Simulation (P-QRS-T)
-        const ecgTick = tick * 5; // Faster frequency for heart rate
+        const ecgTick = tick * 5;
         const phase = ecgTick % (Math.PI * 2);
-        let ecgValue = 0.3; // Baseline
+        let ecgValue = 0.3;
         
         if (phase > 0 && phase < 0.4) {
-          // P Wave
           ecgValue += Math.sin((phase / 0.4) * Math.PI) * 0.05;
         } else if (phase >= 0.5 && phase < 0.6) {
-          // Q
           ecgValue -= (phase - 0.5) * 2;
         } else if (phase >= 0.6 && phase < 0.7) {
-          // R Spike
           ecgValue += (phase - 0.6) * 8;
         } else if (phase >= 0.7 && phase < 0.8) {
-          // S
           ecgValue -= (phase - 0.7) * 4;
         } else if (phase >= 1.0 && phase < 1.5) {
-          // T Wave
           ecgValue += Math.sin(((phase - 1.0) / 0.5) * Math.PI) * 0.1;
         }
         
-        ecgValue += (Math.random() * 0.01); // Subtle noise
+        ecgValue += (Math.random() * 0.01);
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -128,7 +121,6 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
               itemStyle={{ color: '#ffffff' }}
               labelStyle={{ color: '#7fa8b8', fontSize: '10px' }}
             />
-            {/* Breathing Wave */}
             <Area
               type="monotone"
               dataKey="value"
@@ -138,7 +130,6 @@ export const BreathingGraph = ({ isActive }: { isActive: boolean }) => {
               dot={false}
               isAnimationActive={false}
             />
-            {/* ECG Wave */}
             <Area
               type="monotone"
               dataKey="ecg"
