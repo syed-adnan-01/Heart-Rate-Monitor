@@ -14,7 +14,7 @@ import {
 import { Pause, Play, RotateCcw } from 'lucide-react';
 
 export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: boolean, respiratoryRate?: number }) => {
-  const [data, setData] = useState<{ time: number; value: number; ecg: number; label: string }[]>([]);
+  const [data, setData] = useState<{ time: number; value: number; label: string }[]>([]);
   const [tick, setTick] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -26,31 +26,12 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
       setData((prev) => {
         const freqScale = Math.max(0.1, respiratoryRate / 40); // Base target is 40 BPM 
         const breathingValue = Math.sin(tick * freqScale) * 0.3 + 0.4 + (Math.random() * 0.02);
-        
-        const ecgTick = tick * 5;
-        const phase = ecgTick % (Math.PI * 2);
-        let ecgValue = 0.3;
-        
-        if (phase > 0 && phase < 0.4) {
-          ecgValue += Math.sin((phase / 0.4) * Math.PI) * 0.05;
-        } else if (phase >= 0.5 && phase < 0.6) {
-          ecgValue -= (phase - 0.5) * 2;
-        } else if (phase >= 0.6 && phase < 0.7) {
-          ecgValue += (phase - 0.6) * 8;
-        } else if (phase >= 0.7 && phase < 0.8) {
-          ecgValue -= (phase - 0.7) * 4;
-        } else if (phase >= 1.0 && phase < 1.5) {
-          ecgValue += Math.sin(((phase - 1.0) / 0.5) * Math.PI) * 0.1;
-        }
-        
-        ecgValue += (Math.random() * 0.01);
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const newData = [...prev, { 
           time: now.getTime(), 
           value: breathingValue, 
-          ecg: ecgValue,
           label: timeStr 
         }];
         return newData.slice(-200);
@@ -93,13 +74,10 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
 
       <div className="h-64 w-full bg-theme-card rounded-3xl p-4 border border-theme-border relative group">
         <div className="absolute top-4 right-4 flex gap-4 z-10">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-accent-cyan" />
-            <span className="text-[12px] font-bold text-text-secondary uppercase">Respiration</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-accent-yellow" />
-            <span className="text-[12px] font-bold text-text-secondary uppercase">ECG (Sim)</span>
+          <div className="flex items-center gap-2 bg-theme-border/50 px-3 py-1.5 rounded-xl border border-white/5">
+            <div className="w-3 h-3 rounded-full bg-accent-cyan animate-pulse" />
+            <span className="text-[12px] font-bold text-text-secondary uppercase">Live Feed</span>
+            <span className="text-lg font-black text-accent-cyan ml-2">{respiratoryRate} BPM</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
@@ -108,10 +86,6 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
               <linearGradient id="colorCyan" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#00e1ff" stopOpacity={0.4}/>
                 <stop offset="95%" stopColor="#00e1ff" stopOpacity={0}/>
-              </linearGradient>
-              <linearGradient id="colorYellow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f8cd51" stopOpacity={0.4}/>
-                <stop offset="95%" stopColor="#f8cd51" stopOpacity={0}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -131,15 +105,6 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
               dot={false}
               isAnimationActive={false}
             />
-            <Area
-              type="monotone"
-              dataKey="ecg"
-              stroke="#f8cd51"
-              strokeWidth={2}
-              fill="url(#colorYellow)"
-              dot={false}
-              isAnimationActive={false}
-            />
             <Brush 
               dataKey="label" 
               height={30} 
@@ -150,7 +115,6 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
             >
               <LineChart>
                 <Line type="monotone" dataKey="value" stroke="#00e1ff" strokeWidth={1} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="ecg" stroke="#f8cd51" strokeWidth={1} dot={false} isAnimationActive={false} />
               </LineChart>
             </Brush>
           </AreaChart>
