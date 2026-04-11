@@ -78,7 +78,7 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
         <img
           ref={imgRef}
           key={feedKey}
-          src={`http://localhost:5001/signal_feed?t=${feedKey}`}
+          src={isPaused ? undefined : `${import.meta.env.VITE_SENSOR_STREAM_URL || 'http://localhost:5001'}/signal_feed?t=${feedKey}`}
           className="w-full h-full object-cover rounded-xl bg-[#061a29]"
           alt="Waiting for Python Live Signal..."
           onError={handleImgError}

@@ -310,7 +310,7 @@ export default function App() {
 
   // Initialize Socket.IO — runs once, uses ref to avoid stale closure
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
     socket.on('connect', () => {
       console.log('Connected to NeoVision Backend');
@@ -849,7 +849,7 @@ export default function App() {
                         {isSimulated ? (
                           <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65ee9?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover rounded-4xl" referrerPolicy="no-referrer" />
                         ) : (
-                          <img src="http://localhost:5001/video_feed" className="w-full h-full object-cover rounded-4xl bg-black" alt="Waiting for Python Sensor..." />
+                          <img src={`${import.meta.env.VITE_SENSOR_STREAM_URL || 'http://localhost:5001'}/video_feed`} className="w-full h-full object-cover rounded-4xl bg-black" alt="Waiting for Python Sensor..." />
                         )}
                         <div className="absolute inset-0 bg-linear-to-t from-[#111418]/80 to-transparent pointer-events-none" />
                         <div className="absolute bottom-6 left-6 pointer-events-none">
