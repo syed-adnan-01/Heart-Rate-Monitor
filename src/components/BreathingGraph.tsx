@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  YAxis, 
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  YAxis,
   XAxis,
-  CartesianGrid, 
+  CartesianGrid,
   Tooltip,
   Brush,
   LineChart,
@@ -46,10 +46,10 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const newData = [...prev, { 
-          time: now.getTime(), 
-          value: breathingValue, 
-          label: timeStr 
+        const newData = [...prev, {
+          time: now.getTime(),
+          value: breathingValue,
+          label: timeStr
         }];
         return newData.slice(-200);
       });
@@ -65,29 +65,7 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between px-2">
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setIsPaused(!isPaused)}
-            className="p-2 bg-theme-card-hover hover:bg-theme-border rounded-lg text-accent-cyan transition-colors flex items-center gap-2 text-sm font-bold"
-          >
-            {isPaused ? <Play className="w-3 h-3 fill-current" /> : <Pause className="w-3 h-3 fill-current" />}
-            {isPaused ? "RESUME FEED" : "PAUSE TO INSPECT"}
-          </button>
-          <button 
-            onClick={resetGraph}
-            className="p-2 bg-theme-card-hover hover:bg-theme-border rounded-lg text-text-secondary transition-colors"
-            title="Reset Graph"
-          >
-            <RotateCcw className="w-3 h-3" />
-          </button>
-        </div>
-        {isPaused && (
-          <span className="text-[12px] font-bold text-accent-yellow animate-pulse uppercase tracking-widest">
-            Inspection Mode Active
-          </span>
-        )}
-      </div>
+
 
       <div className="h-64 w-full bg-theme-card rounded-3xl p-4 border border-theme-border relative group">
         <div className="absolute top-4 right-4 flex gap-4 z-10">
@@ -97,12 +75,12 @@ export const BreathingGraph = ({ isActive, respiratoryRate = 40 }: { isActive: b
             <span className="text-lg font-black text-accent-cyan ml-2">{respiratoryRate} BPM</span>
           </div>
         </div>
-        <img 
+        <img
           ref={imgRef}
           key={feedKey}
-          src={`http://localhost:5001/signal_feed?t=${feedKey}`} 
-          className="w-full h-full object-cover rounded-xl bg-[#061a29]" 
-          alt="Waiting for Python Live Signal..." 
+          src={`http://localhost:5001/signal_feed?t=${feedKey}`}
+          className="w-full h-full object-cover rounded-xl bg-[#061a29]"
+          alt="Waiting for Python Live Signal..."
           onError={handleImgError}
         />
       </div>

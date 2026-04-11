@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Activity, 
-  Camera, 
-  Settings, 
-  Info, 
-  Play, 
-  Square, 
+import {
+  Activity,
+  Camera,
+  Settings,
+  Info,
+  Play,
+  Square,
   ShieldAlert,
   Presentation,
   Baby,
@@ -47,123 +47,123 @@ export interface PatientRecord {
 }
 
 const INITIAL_PATIENT_RECORDS: PatientRecord[] = [
-  { 
-    id: 1, 
-    title: 'Admission Summary', 
-    date: '2026-03-28', 
-    type: 'Report', 
-    doctor: 'Dr. Dhoni', 
-    size: '1.2 MB', 
+  {
+    id: 1,
+    title: 'Admission Summary',
+    date: '2026-03-28',
+    type: 'Report',
+    doctor: 'Dr. Dhoni',
+    size: '1.2 MB',
     content: '# Admission Summary\n\n**Patient:** Unit 04\n**Date:** 2026-03-28\n\nPatient admitted for observation. Initial vitals stable. No immediate signs of respiratory distress. Monitored for continuous SpO2 and Heart Rate.',
     status: 'Read'
   },
-  { 
-    id: 2, 
-    title: 'Daily Clinical Note - Apr 10', 
-    date: '2026-04-10', 
-    type: 'Note', 
-    doctor: 'Nurse Priya', 
-    size: '450 KB', 
+  {
+    id: 2,
+    title: 'Daily Clinical Note - Apr 10',
+    date: '2026-04-10',
+    type: 'Note',
+    doctor: 'Nurse Priya',
+    size: '450 KB',
     content: '# Clinical Note - April 10 (Today)\n\nPatient had a stable morning. Feeding protocol followed. No apneic events observed. Temperature stable at 36.8°C. Increased activity noted during nursing care.',
     status: 'New'
   },
-  { 
-    id: 3, 
-    title: 'Respiratory Trend Analysis', 
-    date: '2026-04-10', 
-    type: 'Data', 
-    doctor: 'NeoVision AI', 
-    size: '2.8 MB', 
+  {
+    id: 3,
+    title: 'Respiratory Trend Analysis',
+    date: '2026-04-10',
+    type: 'Data',
+    doctor: 'NeoVision AI',
+    size: '2.8 MB',
     content: '# AI Respiratory Trend Analysis\n\nReal-time assessment of respiratory patterns. Patient shows nominal rhythm. Slight tachypnea during feeding earlier today, quickly resolving to baseline of 42 BPM.',
     status: 'Unread'
   },
-  { 
-    id: 4, 
-    title: 'Blood Gas Results', 
-    date: '2026-04-10', 
-    type: 'Lab', 
-    doctor: 'Lab Services', 
-    size: '850 KB', 
+  {
+    id: 4,
+    title: 'Blood Gas Results',
+    date: '2026-04-10',
+    type: 'Lab',
+    doctor: 'Lab Services',
+    size: '850 KB',
     content: '# Blood Gas Lab Results (Latest)\n\npH: 7.38\nPaCO2: 38 mmHg\nPaO2: 92 mmHg\nHCO3: 24 mEq/L\n\nInterpretation: Perfectly normal neonatal acid-base balance.',
     status: 'New'
   },
-  { 
-    id: 5, 
-    title: 'Neurological Assessment', 
-    date: '2026-03-30', 
-    type: 'Report', 
-    doctor: 'Dr. Aditya Verma', 
-    size: '1.5 MB', 
+  {
+    id: 5,
+    title: 'Neurological Assessment',
+    date: '2026-03-30',
+    type: 'Report',
+    doctor: 'Dr. Aditya Verma',
+    size: '1.5 MB',
     content: '# Neurological Assessment\n\nAlert and responsive. Normal reflexes and tone for gestational age. Pupils equal and reactive.',
     status: 'Read'
   },
-  { 
-    id: 6, 
-    title: 'Feeding Protocol - Phase 2', 
-    date: '2026-04-09', 
-    type: 'Protocol', 
-    doctor: 'Dr. Dhoni', 
-    size: '320 KB', 
+  {
+    id: 6,
+    title: 'Feeding Protocol - Phase 2',
+    date: '2026-04-09',
+    type: 'Protocol',
+    doctor: 'Dr. Dhoni',
+    size: '320 KB',
     content: '# Feeding Protocol Update\n\nMove to Phase 2 enteral feeding: 25ml every 3 hours. Monitor tolerance, check residuals. Hold if residuals > 40%.',
     status: 'Read'
   },
-  { 
-    id: 7, 
-    title: 'Chest X-Ray - Follow-up', 
-    date: '2026-04-05', 
-    type: 'Imaging', 
-    doctor: 'Radiology', 
-    size: '12.4 MB', 
+  {
+    id: 7,
+    title: 'Chest X-Ray - Follow-up',
+    date: '2026-04-05',
+    type: 'Imaging',
+    doctor: 'Radiology',
+    size: '12.4 MB',
     content: '# Imaging: Chest X-Ray\n\nClear lung fields bilaterally. Cardiac silhouette normal. No pleural effusion. Significant improvement since admission.',
     status: 'Read'
   },
-  { 
-    id: 8, 
-    title: 'Complete Blood Count', 
-    date: '2026-04-08', 
-    type: 'Lab', 
-    doctor: 'Lab Services', 
-    size: '600 KB', 
+  {
+    id: 8,
+    title: 'Complete Blood Count',
+    date: '2026-04-08',
+    type: 'Lab',
+    doctor: 'Lab Services',
+    size: '600 KB',
     content: '# Lab: Complete Blood Count\n\nWBC: 9.2 x10^3/uL\nRBC: 4.5 x10^6/uL\nHgb: 15.2 g/dL\nPlt: 280 x10^3/uL\n\nAll parameters within reference neonatal limits.',
     status: 'Read'
   },
-  { 
-    id: 9, 
-    title: 'Night Shift Observation', 
-    date: '2026-04-09', 
-    type: 'Note', 
-    doctor: 'Nurse Priya', 
-    size: '310 KB', 
+  {
+    id: 9,
+    title: 'Night Shift Observation',
+    date: '2026-04-09',
+    type: 'Note',
+    doctor: 'Nurse Priya',
+    size: '310 KB',
     content: '# Night Shift Observation\n\nQuiet night. Sleep cycle undisturbed. Respiratory rate ranged from 38-44 BPM.',
     status: 'Read'
   },
-  { 
-    id: 10, 
-    title: 'Echocardiogram Report', 
-    date: '2026-03-31', 
-    type: 'Report', 
-    doctor: 'Dr. Rajesh Iyer', 
-    size: '4.2 MB', 
+  {
+    id: 10,
+    title: 'Echocardiogram Report',
+    date: '2026-03-31',
+    type: 'Report',
+    doctor: 'Dr. Rajesh Iyer',
+    size: '4.2 MB',
     content: '# Echocardiogram Report\n\nNormal biventricular function. No evidence of PDA or septal defects. Ejection fraction estimated at 65%.',
     status: 'Read'
   },
-  { 
-    id: 11, 
-    title: 'Heart Rate Variability', 
-    date: '2026-04-08', 
-    type: 'Data', 
-    doctor: 'NeoVision AI', 
-    size: '1.8 MB', 
+  {
+    id: 11,
+    title: 'Heart Rate Variability',
+    date: '2026-04-08',
+    type: 'Data',
+    doctor: 'NeoVision AI',
+    size: '1.8 MB',
     content: '# AI Data: Heart Rate Variability\n\nHRV analysis indicates robust autonomic regulation for gestational age.',
     status: 'Read'
   },
-  { 
-    id: 12, 
-    title: 'Daily Clinical Note - Apr 09', 
-    date: '2026-04-09', 
-    type: 'Note', 
-    doctor: 'Nurse Priya', 
-    size: '420 KB', 
+  {
+    id: 12,
+    title: 'Daily Clinical Note - Apr 09',
+    date: '2026-04-09',
+    type: 'Note',
+    doctor: 'Nurse Priya',
+    size: '420 KB',
     content: '# Clinical Note - April 9\n\nStable growth progress. Weight up 20g today. Respiratory support minimal.',
     status: 'Read'
   },
@@ -213,14 +213,14 @@ export default function App() {
       try {
         activeOscillator.current.stop();
         activeOscillator.current.disconnect();
-      } catch (e) {}
+      } catch (e) { }
       activeOscillator.current = null;
     }
     if (activeLFO.current) {
       try {
         activeLFO.current.stop();
         activeLFO.current.disconnect();
-      } catch (e) {}
+      } catch (e) { }
       activeLFO.current = null;
     }
     if (activeGainNode.current) {
@@ -261,17 +261,17 @@ export default function App() {
 
         lfo.connect(lfoGain);
         lfoGain.connect(oscillator.frequency);
-        
+
         gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-        
+
         activeOscillator.current = oscillator;
         activeLFO.current = lfo;
         activeGainNode.current = gainNode;
         setIsAlarmActive(true);
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(ctx.destination);
-        
+
         lfo.start();
         oscillator.start();
       } else {
@@ -291,14 +291,14 @@ export default function App() {
   };
 
   const markRecordAsRead = (id: string | number) => {
-    setRecords(prev => prev.map(record => 
+    setRecords(prev => prev.map(record =>
       record.id === id ? { ...record, status: 'Read' } : record
     ));
   };
   const dateInputRef = useRef<HTMLInputElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const doctorInfoRef = useRef<HTMLDivElement>(null);
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const isMonitoringRef = useRef(false);
@@ -318,9 +318,9 @@ export default function App() {
 
     socket.on('vitals_update', (data: { respiratoryRate: number; status: string; timestamp: string }) => {
       if (!isMonitoringRef.current) return;
-      
+
       setRespiratoryRate(data.respiratoryRate);
-      
+
       if (data.status.includes('CRITICAL')) {
         addAlert('Apnea', `CRITICAL: ${data.status} | ${data.respiratoryRate} BPM`, 'high');
       } else if (data.status === 'NORMAL' || data.status.includes('STABLE')) {
@@ -357,7 +357,7 @@ export default function App() {
 
   useEffect(() => {
     let score = 10.0;
-    
+
     // Respiratory Rate Penalty (Live AI Data)
     if (respiratoryRate === 0) {
       score -= 5.0; // Severe apnea penalty
@@ -366,10 +366,10 @@ export default function App() {
     } else if (respiratoryRate < 30) {
       score -= (30 - respiratoryRate) * 0.2;
     }
-    
+
     score = Math.max(0, Math.min(10.0, score));
     setWellnessScore(score);
-    
+
     if (score >= 8.5) setWellnessStatus('Excellent');
     else if (score >= 7.0) setWellnessStatus('Good');
     else if (score >= 5.0) setWellnessStatus('Monitoring');
@@ -416,7 +416,7 @@ export default function App() {
       if (prev.length > 0 && prev[0].message === message) {
         return prev;
       }
-      
+
       const newAlert: Alert = {
         id: Math.random().toString(36).substr(2, 9),
         type,
@@ -424,13 +424,13 @@ export default function App() {
         severity,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       };
-      
+
       if (severity === 'high') {
         playBuzzer(true);
       } else if (severity === 'medium') {
         playBuzzer(false);
       }
-      
+
       return [newAlert, ...prev].slice(0, 20);
     });
   };
@@ -474,7 +474,7 @@ export default function App() {
   };
 
   const NavItem = ({ icon: Icon, label }: { icon: any, label: string }) => (
-    <button 
+    <button
       onClick={() => setActiveTab(label)}
       className={cn(
         "flex items-center gap-2 px-6 py-2.5 rounded-full font-medium text-base",
@@ -507,7 +507,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-theme-bg text-text-primary font-sans p-6">
       <div className="max-w-[1600px] mx-auto space-y-8">
-        
+
         {/* Top Header/Nav */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-12">
@@ -517,7 +517,7 @@ export default function App() {
               </div>
               <h1 className="text-3xl font-bold tracking-tight text-text-primary">NeoVision</h1>
             </div>
-            
+
             <nav className="hidden xl:flex items-center gap-2 bg-theme-card p-1.5 rounded-full border border-theme-border">
               <NavItem icon={Home} label="Home" />
               <NavItem icon={Activity} label="Health" />
@@ -528,7 +528,7 @@ export default function App() {
 
           <div className="flex items-center gap-6">
             <div className="relative" ref={doctorInfoRef}>
-              <button 
+              <button
                 onClick={() => setShowDoctorInfo(!showDoctorInfo)}
                 className={cn(
                   "flex items-center gap-3 text-right hover:bg-white/5 active:scale-95 p-2 rounded-full transition-all cursor-pointer",
@@ -563,7 +563,7 @@ export default function App() {
                             <p className="text-sm text-accent-cyan font-medium">Senior Neonatologist</p>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <div className="p-3 bg-white/5 rounded-2xl border border-theme-border">
                             <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest mb-1">Department</p>
@@ -596,7 +596,7 @@ export default function App() {
 
             <div className="flex items-center gap-4">
               {isAlarmActive && (
-                <button 
+                <button
                   onClick={stopAlarm}
                   className="bg-accent-yellow text-slate-900 px-6 py-2 rounded-full font-bold text-sm hover:scale-105 active:scale-95 transition-all animate-pulse"
                 >
@@ -604,12 +604,12 @@ export default function App() {
                 </button>
               )}
 
-              <button 
+              <button
                 onClick={() => setIsSoundEnabled(!isSoundEnabled)}
                 className={cn(
                   "p-3 rounded-full border transition-all duration-300",
-                  isSoundEnabled 
-                    ? "bg-accent-cyan/20 border-accent-cyan/50 text-accent-cyan" 
+                  isSoundEnabled
+                    ? "bg-accent-cyan/20 border-accent-cyan/50 text-accent-cyan"
                     : "bg-theme-card border-theme-border text-text-secondary hover:bg-slate-800"
                 )}
                 title={isSoundEnabled ? "Mute Buzzer" : "Unmute Buzzer"}
@@ -618,12 +618,12 @@ export default function App() {
               </button>
 
               <div className="relative" ref={notificationRef}>
-                <button 
+                <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className={cn(
                     "relative p-3 rounded-full border transition-all duration-300",
-                    showNotifications 
-                      ? "bg-accent-cyan/20 border-cyan-500/50 text-accent-cyan" 
+                    showNotifications
+                      ? "bg-accent-cyan/20 border-cyan-500/50 text-accent-cyan"
                       : "bg-theme-card border-theme-border text-text-secondary hover:bg-slate-800"
                   )}
                 >
@@ -649,7 +649,7 @@ export default function App() {
                           </h3>
                           <span className="text-[12px] font-mono text-text-secondary uppercase">Latest System Alerts</span>
                         </div>
-                        
+
                         <div className="max-h-[450px] overflow-y-auto custom-scrollbar p-2">
                           {alerts.length === 0 ? (
                             <div className="py-12 text-center text-text-secondary flex flex-col items-center gap-2">
@@ -659,15 +659,15 @@ export default function App() {
                           ) : (
                             <div className="space-y-1">
                               {alerts.map((alert) => (
-                                <button 
+                                <button
                                   key={alert.id}
                                   className="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition-colors group flex items-start gap-4"
                                 >
                                   <div className={cn(
                                     "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
                                     alert.severity === 'high' ? "bg-red-500/10 text-accent-cyan" :
-                                    alert.severity === 'medium' ? "bg-orange-500/10 text-accent-yellow" :
-                                    "bg-accent-cyan/10 text-accent-cyan"
+                                      alert.severity === 'medium' ? "bg-orange-500/10 text-accent-yellow" :
+                                        "bg-accent-cyan/10 text-accent-cyan"
                                   )}>
                                     <Activity className="w-5 h-5" />
                                   </div>
@@ -683,9 +683,9 @@ export default function App() {
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="p-4 bg-white/5 text-center border-t border-theme-border">
-                          <button 
+                          <button
                             onClick={() => setAlerts([])}
                             className="text-[12px] font-bold text-accent-cyan hover:text-cyan-300 transition-colors uppercase tracking-[0.2em]"
                           >
@@ -709,7 +709,7 @@ export default function App() {
               <Activity className="w-4 h-4" />
               System: {isMonitoring ? "Active" : "Standby"}
             </div>
-            <div 
+            <div
               onClick={() => dateInputRef.current?.showPicker()}
               className="relative bg-theme-card text-text-primary rounded-full flex items-center gap-3 px-5 sm:px-6 py-2.5 font-bold text-base border border-theme-border hover:border-cyan-500/30 hover:bg-white/5 transition-all cursor-pointer group"
             >
@@ -720,7 +720,7 @@ export default function App() {
                   {new Date(selectedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long' })}
                 </span>
               </div>
-              <input 
+              <input
                 ref={dateInputRef}
                 type="date"
                 value={selectedDate}
@@ -735,7 +735,7 @@ export default function App() {
 
         <AnimatePresence mode="wait">
           {activeTab === 'Home' ? (
-            <motion.div 
+            <motion.div
               key="home"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -746,16 +746,16 @@ export default function App() {
               {/* Left Column: Small Stats & Alerts */}
               <div className="lg:col-span-3 flex flex-col gap-6">
                 <div className="shrink-0">
-                  <StatCard 
-                    icon={Activity} 
-                    label="Respiratory Rate" 
-                    value={respiratoryRate} 
-                    unit="BPM" 
-                    color="bg-accent-yellow" 
-                    trend="Stable" 
+                  <StatCard
+                    icon={Activity}
+                    label="Respiratory Rate"
+                    value={respiratoryRate}
+                    unit="BPM"
+                    color="bg-accent-yellow"
+                    trend="Stable"
                   />
                 </div>
-                
+
                 <div className="card-glass rounded-5xl p-6 flex-1 flex flex-col h-full overflow-hidden">
                   <AlertLog alerts={alerts} />
                 </div>
@@ -775,56 +775,51 @@ export default function App() {
                       <div className="bg-cyan-400/20 text-accent-cyan px-4 py-1 rounded-full text-[12px] font-bold">+65%</div>
                       <div className={cn(
                         "px-4 py-1 rounded-full text-[12px] font-bold transition-all duration-300",
-                        isCameraReady 
-                          ? "bg-red-500/20 text-accent-cyan border border-red-500/30 animate-pulse" 
+                        isCameraReady
+                          ? "bg-red-500/20 text-accent-cyan border border-red-500/30 animate-pulse"
                           : "bg-theme-card-hover text-text-secondary"
                       )}>
                         LIVE
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-theme-border hover:border-cyan-500/30 transition-colors">
-                      <p className="text-[12px] font-bold text-text-secondary uppercase mb-1">Inspiration Time</p>
-                      <p className="text-xl font-mono text-accent-cyan">0.42s</p>
-                    </div>
-                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-theme-border hover:border-cyan-500/30 transition-colors">
-                      <p className="text-[12px] font-bold text-text-secondary uppercase mb-1">Expiration Time</p>
-                      <p className="text-xl font-mono text-accent-cyan">0.85s</p>
-                    </div>
-                    <div className="p-3 bg-slate-800/30 rounded-2xl border border-theme-border hover:border-cyan-500/30 transition-colors">
-                      <p className="text-[12px] font-bold text-text-secondary uppercase mb-1">I:E Ratio</p>
-                      <p className="text-xl font-mono text-accent-cyan">1:2.0</p>
-                    </div>
-                  </div>
+
+
 
                   <div className="flex-1 min-h-[180px]">
                     <BreathingGraph isActive={isMonitoring} respiratoryRate={respiratoryRate} />
                   </div>
-                  
+
                   <div className="mt-8">
                     <div className="flex justify-between items-center mb-4">
                       <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest">7-Day Stability Trend</p>
-                      <p className="text-[12px] font-bold text-accent-yellow uppercase tracking-widest">Avg: 85.2%</p>
+                      <p className="text-[12px] font-bold text-accent-yellow uppercase tracking-widest">
+                        Avg: {((85 * 6 + (wellnessScore * 10)) / 7).toFixed(1)}%
+                      </p>
                     </div>
                     <div className="grid grid-cols-7 gap-3">
-                      {WEEKLY_STABILITY_DATA.map((item) => (
-                        <div key={item.day} className="flex flex-col items-center gap-2">
-                          <div className="w-full h-20 bg-slate-800/30 rounded-full relative overflow-hidden group">
-                            <motion.div 
-                              initial={{ height: 0 }}
-                              animate={{ height: `${item.value}%` }}
-                              className={cn("absolute bottom-0 left-0 right-0 transition-colors", item.color)} 
-                            />
-                            {/* Tooltip on hover */}
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/40 flex items-center justify-center transition-opacity">
-                              <span className="text-[12px] font-bold text-text-primary">{item.value}%</span>
+                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => {
+                        const todayIdx = new Date().getDay();
+                        const isToday = i === todayIdx;
+                        const fillHeight = isToday ? (wellnessScore * 10) : (75 + (i % 3) * 5);
+                        
+                        return (
+                          <div key={day} className="flex flex-col items-center gap-2">
+                            <div className="w-full md:w-16 h-16 bg-slate-800/30 rounded-full relative overflow-hidden group border border-theme-border">
+                              <motion.div
+                                initial={{ height: 0 }}
+                                animate={{ height: `${fillHeight}%` }}
+                                className={cn("absolute bottom-0 left-0 right-0 transition-colors duration-1000", isToday ? "bg-accent-yellow" : "bg-accent-cyan/80")}
+                              />
+                              {/* Tooltip on hover */}
+                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/40 flex items-center justify-center transition-opacity rounded-full">
+                                <span className="text-[12px] font-bold text-text-primary">{fillHeight.toFixed(1)}%</span>
+                              </div>
                             </div>
+                            <span className={cn("text-[12px] font-bold uppercase", isToday ? "text-accent-yellow" : "text-text-secondary")}>{day}</span>
                           </div>
-                          <span className="text-[12px] font-bold text-text-secondary uppercase">{item.day}</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -843,7 +838,7 @@ export default function App() {
                         </button>
                       )}
                     </div>
-                    
+
                     {!isCameraReady ? (
                       <div className="flex flex-col items-center justify-center h-full text-center pt-8">
                         <Camera className="w-12 h-12 text-slate-700 mb-4" />
@@ -910,20 +905,19 @@ export default function App() {
                   <div className="relative w-48 h-48 flex items-center justify-center mb-4">
                     <svg className="w-full h-full -rotate-90">
                       <circle cx="96" cy="96" r="80" fill="none" stroke="#1e293b" strokeWidth="12" />
-                      <circle cx="96" cy="96" r="80" fill="none" 
-                              stroke={wellnessScore >= 8.5 ? '#22d3ee' : wellnessScore >= 7.0 ? '#4ade80' : wellnessScore >= 5.0 ? '#facc15' : '#ef4444'} 
-                              strokeWidth="12" strokeDasharray="502" strokeDashoffset={502 * (1 - wellnessScore/10)} strokeLinecap="round" 
-                              className="transition-all duration-1000 ease-out" />
+                      <circle cx="96" cy="96" r="80" fill="none"
+                        stroke={wellnessScore >= 8.5 ? '#22d3ee' : wellnessScore >= 7.0 ? '#4ade80' : wellnessScore >= 5.0 ? '#facc15' : '#ef4444'}
+                        strokeWidth="12" strokeDasharray="502" strokeDashoffset={502 * (1 - wellnessScore / 10)} strokeLinecap="round"
+                        className="transition-all duration-1000 ease-out" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <h4 className="text-5xl font-black text-text-primary">{wellnessScore.toFixed(1)}<span className="text-2xl text-text-secondary">/10</span></h4>
-                      <p className={`text-[12px] font-bold uppercase tracking-widest mt-1 ${
-                        wellnessScore >= 8.5 ? 'text-accent-cyan' : wellnessScore >= 7.0 ? 'text-green-400' : wellnessScore >= 5.0 ? 'text-accent-yellow' : 'text-theme-error'
-                      }`}>{wellnessStatus}</p>
+                      <p className={`text-[12px] font-bold uppercase tracking-widest mt-1 ${wellnessScore >= 8.5 ? 'text-accent-cyan' : wellnessScore >= 7.0 ? 'text-green-400' : wellnessScore >= 5.0 ? 'text-accent-yellow' : 'text-theme-error'
+                        }`}>{wellnessStatus}</p>
                     </div>
                   </div>
                   <div className="w-full mb-6">
-                    <button 
+                    <button
                       onClick={() => setShowNurseInfo(!showNurseInfo)}
                       className="flex items-center justify-between gap-3 p-3 bg-theme-border/50 rounded-2xl w-full hover:bg-slate-800 transition-all duration-300"
                     >
@@ -969,8 +963,8 @@ export default function App() {
                     </AnimatePresence>
                   </div>
 
-                  <button 
-                    onClick={() => setShowSlides(true)} 
+                  <button
+                    onClick={() => setShowSlides(true)}
                     className="w-full py-4 bg-accent-cyan/10 border border-accent-cyan/20 rounded-3xl flex flex-col items-center gap-3 group hover:bg-cyan-500/20 transition-all duration-300"
                   >
                     <div className="p-3 bg-cyan-400/20 rounded-2xl group-hover:scale-110 transition-transform">
