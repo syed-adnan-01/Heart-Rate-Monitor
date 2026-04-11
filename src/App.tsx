@@ -198,6 +198,8 @@ export default function App() {
   const [showNurseInfo, setShowNurseInfo] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [isAlarmActive, setIsAlarmActive] = useState(false);
+  const [wellnessScore, setWellnessScore] = useState(10.0);
+  const [wellnessStatus, setWellnessStatus] = useState('Excellent');
 
   const audioContext = useRef<AudioContext | null>(null);
   const activeOscillator = useRef<OscillatorNode | null>(null);
@@ -345,24 +347,34 @@ export default function App() {
       });
 
       setSpo2(prev => {
-        const rand = Math.random();
-        let next;
-        if (rand < 0.05) {
-          next = Math.floor(Math.random() * 5) + 85;
-          addAlert('Warning', `Low SpO2 detected: ${next}%`, 'medium');
-        } else {
-          const change = Math.floor(Math.random() * 3) - 1;
-          next = Math.max(94, Math.min(100, prev + change));
-          if (next >= 95) {
-            isManuallySilenced.current = false;
-          }
-        }
-        return next;
+        const change = Math.floor(Math.random() * 3) - 1;
+        return Math.max(95, Math.min(100, prev + change));
       });
     }, 4000);
 
     return () => clearInterval(interval);
   }, [isMonitoring]);
+
+  useEffect(() => {
+    let score = 10.0;
+    
+    // Respiratory Rate Penalty (Live AI Data)
+    if (respiratoryRate === 0) {
+      score -= 5.0; // Severe apnea penalty
+    } else if (respiratoryRate > 60) {
+      score -= (respiratoryRate - 60) * 0.1;
+    } else if (respiratoryRate < 30) {
+      score -= (30 - respiratoryRate) * 0.2;
+    }
+    
+    score = Math.max(0, Math.min(10.0, score));
+    setWellnessScore(score);
+    
+    if (score >= 8.5) setWellnessStatus('Excellent');
+    else if (score >= 7.0) setWellnessStatus('Good');
+    else if (score >= 5.0) setWellnessStatus('Monitoring');
+    else setWellnessStatus('Critical');
+  }, [respiratoryRate]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -898,11 +910,16 @@ export default function App() {
                   <div className="relative w-48 h-48 flex items-center justify-center mb-4">
                     <svg className="w-full h-full -rotate-90">
                       <circle cx="96" cy="96" r="80" fill="none" stroke="#1e293b" strokeWidth="12" />
-                      <circle cx="96" cy="96" r="80" fill="none" stroke="#22d3ee" strokeWidth="12" strokeDasharray="502" strokeDashoffset={502 * (1 - 0.85)} strokeLinecap="round" />
+                      <circle cx="96" cy="96" r="80" fill="none" 
+                              stroke={wellnessScore >= 8.5 ? '#22d3ee' : wellnessScore >= 7.0 ? '#4ade80' : wellnessScore >= 5.0 ? '#facc15' : '#ef4444'} 
+                              strokeWidth="12" strokeDasharray="502" strokeDashoffset={502 * (1 - wellnessScore/10)} strokeLinecap="round" 
+                              className="transition-all duration-1000 ease-out" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <h4 className="text-5xl font-black text-text-primary">8.5<span className="text-2xl text-text-secondary">/10</span></h4>
-                      <p className="text-[12px] font-bold text-accent-yellow uppercase tracking-widest mt-1">Excellent</p>
+                      <h4 className="text-5xl font-black text-text-primary">{wellnessScore.toFixed(1)}<span className="text-2xl text-text-secondary">/10</span></h4>
+                      <p className={`text-[12px] font-bold uppercase tracking-widest mt-1 ${
+                        wellnessScore >= 8.5 ? 'text-accent-cyan' : wellnessScore >= 7.0 ? 'text-green-400' : wellnessScore >= 5.0 ? 'text-accent-yellow' : 'text-theme-error'
+                      }`}>{wellnessStatus}</p>
                     </div>
                   </div>
                   <div className="w-full mb-6">
