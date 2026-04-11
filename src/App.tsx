@@ -33,6 +33,7 @@ import { cn } from './lib/utils';
 import { HealthPage } from './pages/Health';
 import { ClinicalPage } from './pages/Clinical';
 import { RecordsPage } from './pages/Records';
+import { io } from 'socket.io-client';
 
 export interface PatientRecord {
   id: number | string;
@@ -298,35 +299,43 @@ export default function App() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isMonitoringRef = useRef(false);
+
+  // Keep ref in sync with state so socket handler always sees latest value
+  useEffect(() => {
+    isMonitoringRef.current = isMonitoring;
+  }, [isMonitoring]);
+
+  // Initialize Socket.IO — runs once, uses ref to avoid stale closure
+  useEffect(() => {
+    const socket = io('http://localhost:5000');
+
+    socket.on('connect', () => {
+      console.log('Connected to NeoVision Backend');
+    });
+
+    socket.on('vitals_update', (data: { respiratoryRate: number; status: string; timestamp: string }) => {
+      if (!isMonitoringRef.current) return;
+      
+      setRespiratoryRate(data.respiratoryRate);
+      
+      if (data.status.includes('CRITICAL')) {
+        addAlert('Apnea', `CRITICAL: ${data.status} | ${data.respiratoryRate} BPM`, 'high');
+      } else if (data.status === 'NORMAL' || data.status.includes('STABLE')) {
+        isManuallySilenced.current = false;
+      }
+      // STABILIZING status: do nothing, just update the rate
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (!isMonitoring) return;
 
     const interval = setInterval(() => {
-      setRespiratoryRate(prev => {
-        let next;
-        const rand = Math.random();
-        
-        if (rand < 0.05) {
-          next = 0;
-        } else if (rand < 0.15) {
-          next = Math.floor(Math.random() * 20) + 65;
-        } else {
-          const change = Math.floor(Math.random() * 7) - 3;
-          next = Math.max(30, Math.min(60, prev === 0 ? 40 : prev + change));
-        }
-        
-        if (next > 60) {
-          addAlert('Tachypnea', `High respiratory rate: ${next} BPM`, 'high');
-        } else if (next === 0) {
-          addAlert('Warning', 'Respiratory movement stopped. Monitoring...', 'medium');
-        } else if (next >= 30 && next <= 60) {
-          isManuallySilenced.current = false;
-        }
-        
-        return next;
-      });
-
       setHeartRate(prev => {
         const change = Math.floor(Math.random() * 5) - 2;
         let next = prev + change;
@@ -370,6 +379,7 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showNotifications, showDoctorInfo]);
 
+  // Apnea timer display only — alerts are handled by the Python sensor via Socket.IO
   useEffect(() => {
     if (!isMonitoring) {
       setApneaTimer(0);
@@ -379,13 +389,7 @@ export default function App() {
     let interval: NodeJS.Timeout;
     if (respiratoryRate === 0) {
       interval = setInterval(() => {
-        setApneaTimer(prev => {
-          const next = prev + 1;
-          if (next === 20) {
-            addAlert('Apnea', 'CRITICAL: No movement for 20s!', 'high');
-          }
-          return next;
-        });
+        setApneaTimer(prev => prev + 1);
       }, 1000);
     } else {
       setApneaTimer(0);
@@ -395,39 +399,36 @@ export default function App() {
   }, [isMonitoring, respiratoryRate]);
 
   const addAlert = (type: Alert['type'], message: string, severity: Alert['severity']) => {
-    const newAlert: Alert = {
-      id: Math.random().toString(36).substr(2, 9),
-      type,
-      message,
-      severity,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    };
-    setAlerts(prev => [newAlert, ...prev].slice(0, 20));
-
-    if (severity === 'high') {
-      playBuzzer(true);
-    } else if (severity === 'medium') {
-      playBuzzer(false);
-    }
+    setAlerts(prev => {
+      // Deduplicate: Don't spam if the exact same message is already the most recent alert
+      if (prev.length > 0 && prev[0].message === message) {
+        return prev;
+      }
+      
+      const newAlert: Alert = {
+        id: Math.random().toString(36).substr(2, 9),
+        type,
+        message,
+        severity,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      };
+      
+      if (severity === 'high') {
+        playBuzzer(true);
+      } else if (severity === 'medium') {
+        playBuzzer(false);
+      }
+      
+      return [newAlert, ...prev].slice(0, 20);
+    });
   };
 
   const startCamera = async () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      addAlert('Warning', 'Camera API not supported in this browser/context (Check HTTPS).', 'high');
-      startSimulation();
-      return;
-    }
-
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true 
-      });
-
-      streamRef.current = stream;
       setIsCameraReady(true);
       setIsSimulated(false);
       setIsMonitoring(true);
-      addAlert('Normal', 'Live camera feed connected successfully.', 'low');
+      addAlert('Normal', 'Live AI camera feed connected via Port 5001', 'low');
     } catch (err: any) {
       console.error("Camera Error Details:", err);
       addAlert('Warning', `Camera Error: ${err.name || 'Unknown'}. Entering Simulation.`, 'medium');
@@ -787,7 +788,7 @@ export default function App() {
                   </div>
 
                   <div className="flex-1 min-h-[180px]">
-                    <BreathingGraph isActive={isMonitoring} />
+                    <BreathingGraph isActive={isMonitoring} respiratoryRate={respiratoryRate} />
                   </div>
                   
                   <div className="mt-8">
@@ -841,7 +842,7 @@ export default function App() {
                         {isSimulated ? (
                           <img src="https://images.unsplash.com/photo-1555252333-9f8e92e65ee9?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover rounded-4xl" referrerPolicy="no-referrer" />
                         ) : (
-                          <video ref={videoPortalRef} autoPlay playsInline muted className="w-full h-full object-cover rounded-4xl" />
+                          <img src="http://localhost:5001/video_feed" className="w-full h-full object-cover rounded-4xl bg-black" alt="Waiting for Python Sensor..." />
                         )}
                         <div className="absolute inset-0 bg-linear-to-t from-[#111418]/80 to-transparent pointer-events-none" />
                         <div className="absolute bottom-6 left-6 pointer-events-none">
